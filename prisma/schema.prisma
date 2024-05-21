@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Merchant {
+  merchant_id       String   @id @default(uuid())
+  merchant_name     String
+  merchant_company  String
+  domain            String
+  status_subscriber String   @default("Aktif")
+  start_date        DateTime?  
+  end_date          DateTime?
+  email             String   @unique
+  password          String
+  api_key                   String   @unique
+  used_storage_vehicle      Int     @default(0)
+  used_storage_order        Int     @default(0)
+  doctors           Doctor[]
+  schedules         Schedule[]
+  reservation        Reservation[]
+  // merchantPayments  MerchantPayment[]
+  // payment           Payment[]
+  queue          Queue[]
+  package_id        String           
+  package           Package  @relation(fields: [package_id], references: [package_id])
+}
+
+
+
+model Doctor {
+  doctor_id      String    @id @default(uuid())
+  merchant_id    String
+  name           String
+  specialist     String
+  price          Int        @default(0)
+  practiceDays   String   
+  imageUrl       String    @db.LongText
+  experiences    String    @default("")
+  no_phone       String    @default("")
+  email          String    @default("")
+  no_sip         String    @default("")
+
+  Merchant       Merchant  @relation(fields: [merchant_id], references: [merchant_id])
+  Schedules      Schedule[]  
+}
+
+model Schedule {
+  schedules_id   String    @id @default(uuid())
+  merchant_id    String
+  doctor_id      String
+  day            String      
+  start_date     DateTime
+  end_date       DateTime
+  Merchant       Merchant  @relation(fields: [merchant_id], references: [merchant_id])
+  doctors        Doctor   @relation(fields: [doctor_id], references: [doctor_id])
+  reservation    Reservation[]
+}
+
+model Reservation {
+  reservation_id String    @id @default(uuid())
+  schedules_id   String
+  merchant_id    String
+  no_reservation  String     @default("")
+  date_time      DateTime 
+  patient_name   String
+  patient_phone  String
+  patient_gender String
+  patient_email  String
+  status         String    @default("Pending")
+  created_at     DateTime  @default(now())
+
+  Merchant       Merchant  @relation(fields: [merchant_id], references: [merchant_id])
+  Schedule       Schedule  @relation(fields: [schedules_id], references: [schedules_id])
+  Queue          Queue?    @relation
+}
+
+model Package {
+  package_id    String @id @default(uuid())
+  package_name  String
+  package_price Int
+  count_doctor         Int?
+  count_order   Int?
+  duration      Int    
+  merchants     Merchant[]
+}
+
+model Queue {
+  queue_id       String      @id @default(uuid())
+  merchant_id    String
+  reservation_id String      @unique
+  has_arrived    Boolean?
+  Reservation    Reservation @relation(fields: [reservation_id], references: [reservation_id])
+  Merchant       Merchant  @relation(fields: [merchant_id], references: [merchant_id])
+}

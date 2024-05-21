@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Doctor` ADD COLUMN `price` INTEGER NOT NULL DEFAULT 0;

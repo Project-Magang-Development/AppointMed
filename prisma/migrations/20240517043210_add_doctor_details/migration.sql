@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Doctor` ADD COLUMN `no_sip` VARCHAR(191) NOT NULL DEFAULT '';
