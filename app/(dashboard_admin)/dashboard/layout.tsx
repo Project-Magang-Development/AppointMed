@@ -9,6 +9,7 @@ import {
   Flex,
   Layout,
   Menu,
+  Modal,
   Spin,
   message,
   theme,
@@ -215,22 +216,33 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const selectedKeys = determineSelectedKeys(pathname, items);
 
-  const userMenu = (
-    <Menu
-      items={[
-        {
-          key: "logout",
-          label: "Keluar",
-          icon: <LogoutOutlined />,
-          onClick: () => {
-            Cookies.remove("token");
-            message.success("Logout successful!");
-            window.location.href = "/dashboard/login";
-          },
-        },
-      ]}
-    />
-  );
+  
+const confirmLogout = () => {
+  Modal.confirm({
+    title: "Konfirmasi Keluar",
+    content: "Apakah Anda yakin ingin keluar?",
+    okText: "Ya",
+    cancelText: "Tidak",
+    onOk: () => {
+      Cookies.remove("token");
+      message.success("Logout successful!");
+      window.location.href = "/dashboard/login";
+    },
+  });
+};
+
+const userMenu = (
+  <Menu
+    items={[
+      {
+        key: "logout",
+        label: "Keluar",
+        icon: <LogoutOutlined />,
+        onClick: confirmLogout,
+      },
+    ]}
+  />
+);
 
   // if (loading) {
   //   return <LayoutSkeleton />;
