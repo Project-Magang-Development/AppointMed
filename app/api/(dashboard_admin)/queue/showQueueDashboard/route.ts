@@ -53,7 +53,7 @@ export async function GET(req: Request) {
             patient_gender: true,
             Schedule: {
               select: {
-                doctors: {
+                doctor: {
                   select: {
                     name: true,
                   },

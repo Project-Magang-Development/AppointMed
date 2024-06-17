@@ -2,13 +2,23 @@
 
 import React, { useMemo, useState } from "react";
 import useSWR from "swr";
-import { Button, DatePicker, Divider, Flex, Input, Space, Table, Typography, message } from "antd";
+import {
+  Alert,
+  Button,
+  DatePicker,
+  Divider,
+  Flex,
+  Input,
+  Space,
+  Table,
+  Typography,
+  message,
+} from "antd";
 import Cookies from "js-cookie";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import {
-  ScheduleOutlined,
-} from "@ant-design/icons";
+import { ScheduleOutlined, PlusOutlined } from "@ant-design/icons";
+import { useRouter, useSearchParams } from "next/navigation";
 
 dayjs.extend(utc);
 
@@ -42,11 +52,17 @@ interface Queue {
 }
 
 export default function DashboardQueue() {
-  const {
-    data: queues,
-    error,
-    mutate,
-  } = useSWR<Queue[]>("/api/queue/show", fetcher);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const date = searchParams.get("date") || dayjs().utc().format("YYYY-MM-DD");
+  const fetchUrl = useMemo(() => {
+    let url = "/api/queue/show";
+    const params = new URLSearchParams();
+    if (date) params.append("date", date);
+    return `${url}?${params.toString()}`;
+  }, [date]);
+
+  const { data: queues, error, mutate } = useSWR<Queue[]>(fetchUrl, fetcher);
   const [searchText, setSearchText] = useState("");
 
   const handleSearch = (e: any) => {
@@ -54,8 +70,7 @@ export default function DashboardQueue() {
   };
 
   const filteredQueues = useMemo(() => {
-    if (!queues) return [];
-
+    if (!queues || !Array.isArray(queues)) return [];
     return queues.filter(
       (queue: any) =>
         queue.Reservation.patient_name
@@ -79,7 +94,7 @@ export default function DashboardQueue() {
   };
 
   const queuesGroupedByDoctor = useMemo(() => {
-    if (!queues) return {};
+    if (!queues || !Array.isArray(queues)) return {};
     return groupByDoctor(queues);
   }, [queues]);
 
@@ -101,6 +116,15 @@ export default function DashboardQueue() {
     }
   };
 
+  const handleDateChange = (date: any) => {
+    if (date) {
+      const formattedDate = dayjs(date).format("YYYY-MM-DD");
+      router.push(`/dashboard/queue?date=${formattedDate}`);
+    } else {
+      router.push(`/dashboard/queue`);
+    }
+  };
+
   const columns = [
     {
       title: "No",
@@ -111,6 +135,11 @@ export default function DashboardQueue() {
       title: "Nama Pasien",
       dataIndex: ["Reservation", "patient_name"],
       key: "patientName",
+    },
+    {
+      title: "No. Antrian",
+      dataIndex: ["Reservation", "no_reservation"],
+      key: "noReservation",
     },
     {
       title: "Tanggal Reservasi",
@@ -160,12 +189,16 @@ export default function DashboardQueue() {
 
   return (
     <div>
-      <Flex justify="space-between">
+      <Flex justify="space-around">
         <Title level={3} style={{ marginBottom: 0, marginRight: "auto" }}>
-          Data Reservasi
+          Data Antrian Pasien
         </Title>
         <Flex justify="end" gap={30}>
-          <DatePicker placeholder="Pilih Tanggal" style={{ width: "100%" }} />
+          <DatePicker
+            placeholder="Pilih Tanggal"
+            style={{ width: "100%" }}
+            onChange={handleDateChange}
+          />
           <Input
             placeholder="Cari Pasien..."
             value={searchText}
@@ -177,28 +210,52 @@ export default function DashboardQueue() {
       <Divider />
       {error && <div>Failed to load data</div>}
       {!queues && !error && <div>Loading...</div>}
-      {Object.entries(queuesGroupedByDoctor).map(
-        ([doctorName, filteredQueues]) => (
-          <div key={doctorName} style={{ marginBottom: 32 }}>
-            <Flex
-              justify="space-between"
-              style={{ marginBottom: 24, alignItems: "center" }}
-            >
-              <Flex justify="start" align="center" gap={10} style={{ marginLeft: 30 }}>
-                <Title level={2} style={{ margin: 0 }} >
-                  <ScheduleOutlined style={{ margin: 0, backgroundColor: "white", fontSize: 30 }} />
-                </Title>
-                <Title level={4} style={{ marginBlock: 2 }}>Antrian Pasien {doctorName}</Title>
+      {Object.keys(queuesGroupedByDoctor).length === 0 ? (
+        <div style={{ textAlign: "center", marginTop: 20 }}>
+          <Alert message="Tidak ada data pasien." type="info" showIcon />
+        </div>
+      ) : (
+        Object.entries(queuesGroupedByDoctor).map(
+          ([doctorName, filteredQueues]) => (
+            <div key={doctorName} style={{ marginBottom: 32 }}>
+              <Flex
+                justify="space-between"
+                style={{ marginBottom: 24, alignItems: "center" }}
+              >
+                <Flex
+                  justify="start"
+                  align="center"
+                  gap={10}
+                  style={{ marginLeft: 30 }}
+                >
+                  <Title level={2} style={{ margin: 0 }}>
+                    <ScheduleOutlined
+                      style={{
+                        margin: 0,
+                        backgroundColor: "white",
+                        fontSize: 30,
+                      }}
+                    />
+                  </Title>
+                  <Title level={4} style={{ marginBlock: 2 }}>
+                    Antrian Pasien {doctorName}
+                  </Title>
+                </Flex>
+                <Button
+                  icon={<PlusOutlined />}
+                  style={{ color: "#FFF", backgroundColor: "#007E85" }}
+                >
+                  Tambah Pasien
+                </Button>
               </Flex>
-              <Button type="primary">Tambah Pasien</Button>
-            </Flex>
-            <Table
-              dataSource={filteredQueues}
-              columns={columns}
-              rowKey="queue_id"
-              pagination={{ pageSize: 5 }}
-            />
-          </div>
+              <Table
+                dataSource={filteredQueues}
+                columns={columns}
+                rowKey="queue_id"
+                pagination={{ pageSize: 5 }}
+              />
+            </div>
+          )
         )
       )}
     </div>

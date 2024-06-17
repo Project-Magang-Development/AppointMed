@@ -4,7 +4,6 @@ import React from "react";
 import { Card, Col, Row, Spin, Alert } from "antd";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
-
 interface Package {
   package_id: number;
   package_name: string;

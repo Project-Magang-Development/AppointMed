@@ -10,11 +10,15 @@ import {
   DatePicker,
   Button,
   Typography,
+  Steps,
   Col,
+  Row,
 } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import FormItem from "antd/es/form/FormItem";
+import Title from "antd/es/typography/Title";
+const { Step } = Steps;
 dayjs.extend(utc);
 
 const { Option } = Select;
@@ -49,7 +53,7 @@ interface TimeSlot {
 
 export default function Home() {
   const [apiKey, setApiKey] = useState(
-    "ee8d59a63d8f2c02189ddf3f6221e3e68561801a7c621a3724a0f27d1809037a"
+    "d41ab1db43222e69f705d61b3b1621f8a039747b284067c2a8341a78a9c2b8a5"
   );
   const [selectedSpecialist, setSelectedSpecialist] = useState<string>("");
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
@@ -101,74 +105,74 @@ export default function Home() {
     }
   }, [selectedSpecialist, doctors]);
 
-  
-useEffect(() => {
-  if (selectedDoctorId && selectedDate) {
-    const formattedDate = selectedDate.format("YYYY-MM-DD");
-    fetch(
-      `/api/schedule/showTime?doctorId=${selectedDoctorId}&date=${formattedDate}`
-    )
-      .then((res) => res.json())
-      .then((schedules) => {
-        const timeSlots: TimeSlot[] = [];
-        let reservationCounter = 1;
+  useEffect(() => {
+    if (selectedDoctorId && selectedDate) {
+      const formattedDate = selectedDate.format("YYYY-MM-DD");
+      fetch(
+        `/api/schedule/showTime?doctorId=${selectedDoctorId}&date=${formattedDate}`
+      )
+        .then((res) => res.json())
+        .then((schedules) => {
+          const timeSlots: TimeSlot[] = [];
+          let reservationCounter = 1;
 
-        if (schedules.length > 0) {
-          schedules.forEach((schedule: any) => {
-            const startTime = dayjs.utc(schedule.start_date);
-            const endTime = dayjs.utc(schedule.end_date);
-            let currentTime = startTime;
+          if (schedules.length > 0) {
+            schedules.forEach((schedule: any) => {
+              const startTime = dayjs.utc(schedule.start_date);
+              const endTime = dayjs.utc(schedule.end_date);
+              let currentTime = startTime;
 
-            while (currentTime.isBefore(endTime)) {
-              const time = currentTime.format("HH:mm");
+              while (currentTime.isBefore(endTime)) {
+                const time = currentTime.format("HH:mm");
 
-              // Check if this time is already reserved for the selected date
-              const isReserved =
-                reservations &&
-                reservations.some(
-                  (reservation) =>
-                    dayjs.utc(reservation.date_time).format("HH:mm") === time &&
-                    dayjs.utc(reservation.date_time).format("YYYY-MM-DD") ===
-                      formattedDate
-                );
-
-              if (!isReserved) {
-                let reservationNo = `A${reservationCounter
-                  .toString()
-                  .padStart(3, "0")}`;
-
-                while (
-                  reservations!.some(
+                // Check if this time is already reserved for the selected date
+                const isReserved =
+                  reservations &&
+                  reservations.some(
                     (reservation) =>
-                      reservation.no_reservation === reservationNo
-                  )
-                ) {
-                  reservationCounter +=1 ;
-                  reservationNo = `A${reservationCounter
+                      dayjs.utc(reservation.date_time).format("HH:mm") ===
+                        time &&
+                      dayjs.utc(reservation.date_time).format("YYYY-MM-DD") ===
+                        formattedDate
+                  );
+
+                if (!isReserved) {
+                  let reservationNo = `A${reservationCounter
                     .toString()
                     .padStart(3, "0")}`;
+
+                  while (
+                    reservations!.some(
+                      (reservation) =>
+                        reservation.no_reservation === reservationNo
+                    )
+                  ) {
+                    reservationCounter += 1;
+                    reservationNo = `A${reservationCounter
+                      .toString()
+                      .padStart(3, "0")}`;
+                  }
+
+                  timeSlots.push({
+                    time,
+                    scheduleId: schedule.schedules_id,
+                    reservationNo,
+                  });
+
+                  reservationCounter++;
                 }
 
-                timeSlots.push({
-                  time,
-                  scheduleId: schedule.schedules_id,
-                  reservationNo,
-                });
-
-                reservationCounter++;
+                currentTime = currentTime.add(10, "minute");
               }
-
-              currentTime = currentTime.add(10, "minute");
-            }
-          });
-        }
-        setTimes(timeSlots);
-      })
-      .catch(console.error);
-  } else {
-    setTimes([]);
-  }
-}, [selectedDoctorId, selectedDate, reservations]);
+            });
+          }
+          setTimes(timeSlots);
+        })
+        .catch(console.error);
+    } else {
+      setTimes([]);
+    }
+  }, [selectedDoctorId, selectedDate, reservations]);
 
   const handleOk = () => {
     if (selectedTime && selectedScheduleId && selectedDate) {
@@ -201,9 +205,6 @@ useEffect(() => {
         style={{
           display: "flex",
           justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          background: "#f0f2f5",
         }}
       >
         <Form
@@ -213,94 +214,147 @@ useEffect(() => {
             borderRadius: "8px",
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
             width: "100%",
-            maxWidth: "400px",
+            maxWidth: "800px",
           }}
+          layout="vertical"
           onFinish={handleOk}
         >
-          <Form.Item label="Choose a specialist:" name="specialist">
-            <Select
-              showSearch
-              value={selectedSpecialist}
-              onChange={setSelectedSpecialist}
-              placeholder="Select a Specialist"
-              optionFilterProp="children"
-            >
-              {doctors &&
-                Array.from(
-                  new Set(doctors.map((doctor) => doctor.specialist))
-                ).map((specialist) => (
-                  <Option key={specialist} value={specialist}>
-                    {specialist}
-                  </Option>
-                ))}
-            </Select>
-          </Form.Item>
-          <Form.Item label="Select Doctor:" name="doctor">
-            <Select
-              showSearch
-              value={selectedDoctorName}
-              onChange={(value) => {
-                const selectedDoc = filteredDoctors.find(
-                  (doctor) => doctor.name === value
-                );
-                if (selectedDoc) {
-                  setSelectedDoctorId(selectedDoc.doctor_id);
-                  setSelectedDoctorName(selectedDoc.name);
-                } else {
-                  setSelectedDoctorId("");
-                  setSelectedDoctorName("");
-                }
-              }}
-              placeholder="Select a Doctor"
-              optionFilterProp="children"
-              disabled={!filteredDoctors.length}
-            >
-              {filteredDoctors.map((doctor) => (
-                <Option
-                  key={doctor.doctor_id}
-                  value={doctor.name}
-                  label={doctor.name}
+          <Row
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "20px",
+            }}
+          >
+            <Steps size="small" current={0} style={{ marginBottom: "20px" }}>
+              <Step title="Select Doctor" />
+              <Step title="Fill Personal Data" />
+              <Step title="Payment Process" />
+              <Step title="Done" />
+            </Steps>
+          </Row>
+          <Title level={2} style={{ marginBottom: "30px", textAlign: "center" }}>
+            Quick Reservation
+          </Title>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item label="Choose Specialist:" name="specialist">
+                <Select
+                  showSearch
+                  value={selectedSpecialist}
+                  onChange={setSelectedSpecialist}
+                  placeholder="Select a Specialist"
+                  optionFilterProp="children"
                 >
-                  <Tooltip
-                    title={`Nomor SIP: ${doctor.no_sip}, Pengalaman: ${doctor.experiences}`}
-                  >
-                    <Text strong>{doctor.name}</Text>
-                  </Tooltip>
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item label="Select Date:" name="date">
-            <DatePicker
-              format="YYYY-MM-DD"
-              value={selectedDate}
-              onChange={setSelectedDate}
-              disabled={!selectedDoctorId}
-              style={{ width: "100%" }}
-            />
-          </Form.Item>
-          <Form.Item label="Select Time:" name="time">
-            <Select
-              showSearch
-              value={selectedTime}
-              onChange={handleTimeChange}
-              placeholder="Select a Time"
-              optionFilterProp="children"
-              disabled={!times.length}
-              style={{ width: "100%" }}
-            >
-              {times.map((slot, index) => (
-                <Option key={index} value={slot.time}>
-                  {slot.time}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+                  {Array.isArray(doctors) &&
+                    Array.from(
+                      new Set(doctors.map((doctor) => doctor.specialist))
+                    ).map((specialist) => (
+                      <Option key={specialist} value={specialist}>
+                        {specialist}
+                      </Option>
+                    ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Select Doctor:" name="doctor">
+                <Select
+                  showSearch
+                  value={selectedDoctorName}
+                  onChange={(value) => {
+                    const selectedDoc = filteredDoctors.find(
+                      (doctor) => doctor.name === value
+                    );
+                    if (selectedDoc) {
+                      setSelectedDoctorId(selectedDoc.doctor_id);
+                      setSelectedDoctorName(selectedDoc.name);
+                    } else {
+                      setSelectedDoctorId("");
+                      setSelectedDoctorName("");
+                    }
+                  }}
+                  placeholder="Select a Doctor"
+                  optionFilterProp="children"
+                  disabled={!filteredDoctors.length}
+                >
+                  {filteredDoctors.map((doctor) => (
+                    <Option
+                      key={doctor.doctor_id}
+                      value={doctor.name}
+                      label={doctor.name}
+                    >
+                      <Tooltip
+                        title={`Nomor SIP: ${doctor.no_sip}, Pengalaman: ${doctor.experiences}`}
+                      >
+                        <Text strong>{doctor.name}</Text>
+                      </Tooltip>
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item label="Select Date:" name="date">
+                <DatePicker
+                  format="YYYY-MM-DD"
+                  value={selectedDate}
+                  onChange={setSelectedDate}
+                  disabled={!selectedDoctorId}
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Select Time:" name="time">
+                <Select
+                  showSearch
+                  value={selectedTime}
+                  onChange={handleTimeChange}
+                  placeholder="Select a Time"
+                  optionFilterProp="children"
+                  disabled={!times.length}
+                  style={{ width: "100%" }}
+                >
+                  {times.map((slot, index) => (
+                    <Option key={index} value={slot.time}>
+                      {slot.time}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
           <FormItem>
-            <Button type="primary" htmlType="submit" block>
-              OK
+            <Button
+              style={{
+                color: "#FFFF",
+                backgroundColor: "#007E85",
+                width: "100%",
+                marginTop: "20px",
+              }}
+              htmlType="submit"
+              block
+            >
+              Lanjut
             </Button>
           </FormItem>
+          <h1
+            style={{
+              textAlign: "center",
+              fontWeight: "normal",
+              fontSize: "1rem",
+              marginTop: "20px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#007E85",
+            }}
+          >
+            Powered By AppointMed
+          </h1>
         </Form>
       </Content>
     </div>

@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 export async function GET(req: Request) {
   try {
@@ -28,16 +32,33 @@ export async function GET(req: Request) {
       });
     }
 
+    const url = new URL(req.url);
+    const date = url.searchParams.get("date");
+
+    const formattedDate = date
+      ? dayjs.utc(date).format("YYYY-MM-DD")
+      : dayjs().utc().format("YYYY-MM-DD");
+
+
+    const startOfDay = dayjs.utc(formattedDate).startOf("day").toDate();
+    const endOfDay = dayjs.utc(formattedDate).endOf("day").toDate();
+
     const queues = await prisma.queue.findMany({
       where: {
         merchant_id: decoded.merchantId,
+        Reservation: {
+          date_time: {
+            gte: startOfDay,
+            lt: endOfDay,
+          },
+        },
       },
       include: {
         Reservation: {
           include: {
             Schedule: {
               include: {
-                doctors: true, // Make sure your Schedule model includes a relation to Doctor
+                doctor: true,
               },
             },
           },
