@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import useSWR from "swr";
 import {
+  Alert,
   Button,
   DatePicker,
   Divider,
@@ -211,7 +212,7 @@ export default function DashboardQueue() {
       {!queues && !error && <div>Loading...</div>}
       {Object.keys(queuesGroupedByDoctor).length === 0 ? (
         <div style={{ textAlign: "center", marginTop: 20 }}>
-          Tidak ada data pasien
+          <Alert message="Tidak ada data pasien." type="info" showIcon />
         </div>
       ) : (
         Object.entries(queuesGroupedByDoctor).map(

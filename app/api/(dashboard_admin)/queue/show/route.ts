@@ -58,7 +58,7 @@ export async function GET(req: Request) {
           include: {
             Schedule: {
               include: {
-                doctors: true,
+                doctor: true,
               },
             },
           },

@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import Title from "antd/es/typography/Title";
+import TableSkeleton from "@/app/components/tableSkeleton";
 
 dayjs.extend(utc);
 
@@ -23,10 +24,11 @@ interface ReservationData {
   patient_gender: string;
   patient_email: string;
   status: string;
+  Schedule?: { doctors: { name: string } }; // Adding optional Schedule property for doctor name
 }
 
 export default function DashboardReservation() {
-  const { data: reservations, error } = useSWR<ReservationData[]>(
+  const { data, error, isLoading } = useSWR<ReservationData[]>(
     "/api/reservation/show",
     fetcher
   );
@@ -38,16 +40,16 @@ export default function DashboardReservation() {
   };
 
   const filteredReservation = useMemo(() => {
-    if (!reservations) return [];
+    if (!Array.isArray(data)) return [];
 
-    return reservations.filter(
-      (reservation: any) =>
+    return data.filter(
+      (reservation) =>
         reservation.patient_name
           .toLowerCase()
           .includes(searchText.toLowerCase()) ||
         reservation.date_time.toLowerCase().includes(searchText.toLowerCase())
     );
-  }, [reservations, searchText]);
+  }, [data, searchText]);
 
   const columns = [
     {
@@ -60,7 +62,7 @@ export default function DashboardReservation() {
       title: "Tanggal Reservasi",
       dataIndex: "date_time",
       key: "date_time",
-      render: (text: any) => dayjs.utc(text).format("DD MMMM YYYY"), // Convert to UTC before formatting
+      render: (text: any) => dayjs.utc(text).format("DD MMMM YYYY"),
     },
     {
       title: "Pilihan Jam",
@@ -71,7 +73,8 @@ export default function DashboardReservation() {
     {
       title: "Nama Dokter",
       key: "doctor_name",
-      render: (text: any, record: any) => record.Schedule.doctors.name, // Accessing the doctor's name
+      render: (text: any, record: any) =>
+        record.Schedule?.doctors?.name || "N/A",
     },
     {
       title: "Nama Pasien",
@@ -124,8 +127,8 @@ export default function DashboardReservation() {
       </Flex>
       <Divider />
       {error && <div>Failed to load</div>}
-      {!reservations && !error && <div>Loading...</div>}
-      {Array.isArray(reservations) && (
+      {!Array.isArray(data) && !error && <div><TableSkeleton /></div>}
+      {Array.isArray(data) && (
         <Table
           dataSource={filteredReservation}
           columns={columns}

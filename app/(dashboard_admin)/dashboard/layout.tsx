@@ -5,22 +5,25 @@ import type { MenuProps } from "antd";
 import {
   Badge,
   Breadcrumb,
+  Card,
   Divider,
   Flex,
   Layout,
   Menu,
   Modal,
+  Space,
   Spin,
   message,
   theme,
 } from "antd";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCompanyName, useMerchantName } from "../../hooks/useLogin";
+import { useApiKey, useCompanyName, useMerchantName } from "../../hooks/useLogin";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import LayoutSkeleton from "@/app/components/layoutSkeleton";
 import Cookies from "js-cookie";
+import Paragraph from "antd/es/typography/Paragraph";
 
 const BookOutlined = dynamic(() =>
   import("@ant-design/icons").then((icon) => icon.BookOutlined)
@@ -47,6 +50,14 @@ const OrderedListOutlined = dynamic(() =>
   import("@ant-design/icons").then((icon) => icon.OrderedListOutlined)
 );
 
+const KeyOutlined = dynamic(() =>
+  import("@ant-design/icons").then((icon) => icon.KeyOutlined)
+);
+
+const FileMarkdownTwoTone = dynamic(() =>
+  import("@ant-design/icons").then((icon) => icon.FileMarkdownTwoTone)
+);
+
 const Avatar = dynamic(() => import("antd").then((mod) => mod.Avatar), {
   ssr: false,
   loading: () => <Spin size="small" />,
@@ -67,9 +78,11 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
   const companyName = useCompanyName();
   const merchantName = useMerchantName();
+  const apiKey = useApiKey();
   const [loading, setLoading] = useState(true);
   const [newOrdersCount, setNewOrdersCount] = useState(0);
   const [newBookingsCount, setNewBookingsCount] = useState(0);
+  const [selectedContent, setSelectedContent] = useState<string>("");
 
   const [collapsed, setCollapsed] = useState(false);
   const {
@@ -231,9 +244,39 @@ const confirmLogout = () => {
   });
 };
 
+const showApiKey = (apiKey: string) => {
+  Modal.info({
+    title: "API Key",
+    content: (
+      <Space direction="vertical" style={{ width: "100%" }}>
+        <Paragraph copyable={{ text: apiKey }} style={{ fontSize: "16px" }}>
+          {apiKey}
+        </Paragraph>
+      </Space>
+    ),
+    width: 600,
+  });
+};
+
+const showDocumentation = () => {
+  setSelectedContent("dokumentasi");
+};
+
 const userMenu = (
   <Menu
     items={[
+      {
+        key: "apiKey",
+        label: "API Key",
+        icon: <KeyOutlined />,
+        onClick: () => showApiKey(apiKey),
+      },
+      {
+        key: "dokumentasi",
+        label: "Dokumentasi",
+        icon: <FileMarkdownTwoTone />,
+        onClick: () => showDocumentation(),
+      },
       {
         key: "logout",
         label: "Keluar",
@@ -395,6 +438,45 @@ const userMenu = (
           RentalinAja ©{new Date().getFullYear()} AppointMed
         </Footer>
       </Layout>
+      <Modal
+        title="Dokumentasi"
+        visible={selectedContent !== ""}
+        onCancel={() => setSelectedContent("")}
+        footer={null}
+      >
+        {selectedContent === "dokumentasi" && (
+          <>
+            <Card hoverable onClick={() => setSelectedContent("react")}>
+              <h1>Dokumentasi Penggunaan Dengan React</h1>
+            </Card>
+            <Card
+              hoverable
+              onClick={() => setSelectedContent("html")}
+              style={{ marginTop: "1rem" }}
+            >
+              <h1>Dokumentasi Penggunaan Dengan HTML</h1>
+            </Card>
+          </>
+        )}
+
+        {selectedContent === "react" && (
+          <ul>
+            <li>Langkah 1: Import React dari react</li>
+            <li>Langkah 2: Buat komponen</li>
+            <li>Langkah 3: Gunakan komponen dalam aplikasi Anda</li>
+            {/* Tambahkan item lain yang relevan */}
+          </ul>
+        )}
+
+        {selectedContent === "html" && (
+          <ul>
+            <li>Langkah 1: Buat file HTML</li>
+            <li>Langkah 2: Tambahkan elemen HTML</li>
+            <li>Langkah 3: Gaya dengan CSS</li>
+            {/* Tambahkan item lain yang relevan */}
+          </ul>
+        )}
+      </Modal>
     </Layout>
   );
 };

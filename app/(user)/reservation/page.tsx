@@ -41,7 +41,8 @@ export default function FormPage() {
       patient_phone: values.patient_phone,
       patient_gender: values.patient_gender,
       patient_email: values.patient_email,
-      no_reservation: no_reservation, // Sertakan no_reservation dalam payload
+      patient_address: values.patient_address,
+      no_reservation: no_reservation, 
     };
 
     try {
@@ -57,7 +58,6 @@ export default function FormPage() {
       if (response.ok) {
         setReservationData(data);
         setIsModalVisible(true); // Tampilkan modal
-        console.log("Success:", data);
       } else {
         message.error(data.error || "Failed to create reservation");
         console.error("Error:", data);
@@ -143,6 +143,13 @@ export default function FormPage() {
           <Form.Item
             label="Email"
             name="patient_email"
+            rules={[{ required: true, message: "Please input your email!" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Address"
+            name="patient_address"
             rules={[{ required: true, message: "Please input your email!" }]}
           >
             <Input />
