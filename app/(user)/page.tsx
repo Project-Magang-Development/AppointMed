@@ -101,74 +101,74 @@ export default function Home() {
     }
   }, [selectedSpecialist, doctors]);
 
-  
-useEffect(() => {
-  if (selectedDoctorId && selectedDate) {
-    const formattedDate = selectedDate.format("YYYY-MM-DD");
-    fetch(
-      `/api/schedule/showTime?doctorId=${selectedDoctorId}&date=${formattedDate}`
-    )
-      .then((res) => res.json())
-      .then((schedules) => {
-        const timeSlots: TimeSlot[] = [];
-        let reservationCounter = 1;
+  useEffect(() => {
+    if (selectedDoctorId && selectedDate) {
+      const formattedDate = selectedDate.format("YYYY-MM-DD");
+      fetch(
+        `/api/schedule/showTime?doctorId=${selectedDoctorId}&date=${formattedDate}`
+      )
+        .then((res) => res.json())
+        .then((schedules) => {
+          const timeSlots: TimeSlot[] = [];
+          let reservationCounter = 1;
 
-        if (schedules.length > 0) {
-          schedules.forEach((schedule: any) => {
-            const startTime = dayjs.utc(schedule.start_date);
-            const endTime = dayjs.utc(schedule.end_date);
-            let currentTime = startTime;
+          if (schedules.length > 0) {
+            schedules.forEach((schedule: any) => {
+              const startTime = dayjs.utc(schedule.start_date);
+              const endTime = dayjs.utc(schedule.end_date);
+              let currentTime = startTime;
 
-            while (currentTime.isBefore(endTime)) {
-              const time = currentTime.format("HH:mm");
+              while (currentTime.isBefore(endTime)) {
+                const time = currentTime.format("HH:mm");
 
-              // Check if this time is already reserved for the selected date
-              const isReserved =
-                reservations &&
-                reservations.some(
-                  (reservation) =>
-                    dayjs.utc(reservation.date_time).format("HH:mm") === time &&
-                    dayjs.utc(reservation.date_time).format("YYYY-MM-DD") ===
-                      formattedDate
-                );
-
-              if (!isReserved) {
-                let reservationNo = `A${reservationCounter
-                  .toString()
-                  .padStart(3, "0")}`;
-
-                while (
-                  reservations!.some(
+                // Check if this time is already reserved for the selected date
+                const isReserved =
+                  reservations &&
+                  reservations.some(
                     (reservation) =>
-                      reservation.no_reservation === reservationNo
-                  )
-                ) {
-                  reservationCounter +=1 ;
-                  reservationNo = `A${reservationCounter
+                      dayjs.utc(reservation.date_time).format("HH:mm") ===
+                        time &&
+                      dayjs.utc(reservation.date_time).format("YYYY-MM-DD") ===
+                        formattedDate
+                  );
+
+                if (!isReserved) {
+                  let reservationNo = `A${reservationCounter
                     .toString()
                     .padStart(3, "0")}`;
+
+                  while (
+                    reservations!.some(
+                      (reservation) =>
+                        reservation.no_reservation === reservationNo
+                    )
+                  ) {
+                    reservationCounter += 1;
+                    reservationNo = `A${reservationCounter
+                      .toString()
+                      .padStart(3, "0")}`;
+                  }
+
+                  timeSlots.push({
+                    time,
+                    scheduleId: schedule.schedules_id,
+                    reservationNo,
+                  });
+
+                  reservationCounter++;
                 }
 
-                timeSlots.push({
-                  time,
-                  scheduleId: schedule.schedules_id,
-                  reservationNo,
-                });
-
-                reservationCounter++;
+                currentTime = currentTime.add(10, "minute");
               }
-
-              currentTime = currentTime.add(10, "minute");
-            }
-          });
-        }
-        setTimes(timeSlots);
-      })
-      .catch(console.error);
-  } else {
-    setTimes([]);
-  }
-}, [selectedDoctorId, selectedDate, reservations]);
+            });
+          }
+          setTimes(timeSlots);
+        })
+        .catch(console.error);
+    } else {
+      setTimes([]);
+    }
+  }, [selectedDoctorId, selectedDate, reservations]);
 
   const handleOk = () => {
     if (selectedTime && selectedScheduleId && selectedDate) {
@@ -225,14 +225,19 @@ useEffect(() => {
               placeholder="Select a Specialist"
               optionFilterProp="children"
             >
-              {doctors &&
+              {doctors && doctors.length > 0 ? (
                 Array.from(
                   new Set(doctors.map((doctor) => doctor.specialist))
                 ).map((specialist) => (
                   <Option key={specialist} value={specialist}>
                     {specialist}
                   </Option>
-                ))}
+                ))
+              ) : (
+                <Option value="" disabled>
+                  No Specialists Available
+                </Option>
+              )}
             </Select>
           </Form.Item>
           <Form.Item label="Select Doctor:" name="doctor">

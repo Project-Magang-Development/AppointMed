@@ -11,7 +11,7 @@ export const useCompanyName = () => {
     if (token) {
       setCompanyName(getCompanyName(token));
     } else {
-        router.push("/dashboard/login");
+      router.push("/dashboard/login");
     }
   }, []);
   return companyName;
