@@ -26,6 +26,7 @@
     "nodemailer": "^6.9.13",
     "react": "^18",
     "react-dom": "^18",
+    "react-fast-marquee": "^1.6.4",
     "rentalinaja-scheduler-component": "^1.0.0",
     "scheduler-rentalinaja": "^1.0.0",
     "swr": "^2.2.5"

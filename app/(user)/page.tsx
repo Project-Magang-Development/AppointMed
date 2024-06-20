@@ -219,114 +219,90 @@ export default function Home() {
           layout="vertical"
           onFinish={handleOk}
         >
-          <Row
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginBottom: "20px",
-            }}
-          >
-            <Steps size="small" current={0} style={{ marginBottom: "20px" }}>
-              <Step title="Select Doctor" />
-              <Step title="Fill Personal Data" />
-              <Step title="Payment Process" />
-              <Step title="Done" />
-            </Steps>
-          </Row>
-          <Title level={2} style={{ marginBottom: "30px", textAlign: "center" }}>
-            Quick Reservation
-          </Title>
-          <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item label="Choose Specialist:" name="specialist">
-                <Select
-                  showSearch
-                  value={selectedSpecialist}
-                  onChange={setSelectedSpecialist}
-                  placeholder="Select a Specialist"
-                  optionFilterProp="children"
+          <Form.Item label="Choose a specialist:" name="specialist">
+            <Select
+              showSearch
+              value={selectedSpecialist}
+              onChange={setSelectedSpecialist}
+              placeholder="Select a Specialist"
+              optionFilterProp="children"
+            >
+              {doctors && doctors.length > 0 ? (
+                Array.from(
+                  new Set(doctors.map((doctor) => doctor.specialist))
+                ).map((specialist) => (
+                  <Option key={specialist} value={specialist}>
+                    {specialist}
+                  </Option>
+                ))
+              ) : (
+                <Option value="" disabled>
+                  No Specialists Available
+                </Option>
+              )}
+            </Select>
+          </Form.Item>
+          <Form.Item label="Select Doctor:" name="doctor">
+            <Select
+              showSearch
+              value={selectedDoctorName}
+              onChange={(value) => {
+                const selectedDoc = filteredDoctors.find(
+                  (doctor) => doctor.name === value
+                );
+                if (selectedDoc) {
+                  setSelectedDoctorId(selectedDoc.doctor_id);
+                  setSelectedDoctorName(selectedDoc.name);
+                } else {
+                  setSelectedDoctorId("");
+                  setSelectedDoctorName("");
+                }
+              }}
+              placeholder="Select a Doctor"
+              optionFilterProp="children"
+              disabled={!filteredDoctors.length}
+            >
+              {filteredDoctors.map((doctor) => (
+                <Option
+                  key={doctor.doctor_id}
+                  value={doctor.name}
+                  label={doctor.name}
                 >
-                  {Array.isArray(doctors) &&
-                    Array.from(
-                      new Set(doctors.map((doctor) => doctor.specialist))
-                    ).map((specialist) => (
-                      <Option key={specialist} value={specialist}>
-                        {specialist}
-                      </Option>
-                    ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item label="Select Doctor:" name="doctor">
-                <Select
-                  showSearch
-                  value={selectedDoctorName}
-                  onChange={(value) => {
-                    const selectedDoc = filteredDoctors.find(
-                      (doctor) => doctor.name === value
-                    );
-                    if (selectedDoc) {
-                      setSelectedDoctorId(selectedDoc.doctor_id);
-                      setSelectedDoctorName(selectedDoc.name);
-                    } else {
-                      setSelectedDoctorId("");
-                      setSelectedDoctorName("");
-                    }
-                  }}
-                  placeholder="Select a Doctor"
-                  optionFilterProp="children"
-                  disabled={!filteredDoctors.length}
-                >
-                  {filteredDoctors.map((doctor) => (
-                    <Option
-                      key={doctor.doctor_id}
-                      value={doctor.name}
-                      label={doctor.name}
-                    >
-                      <Tooltip
-                        title={`Nomor SIP: ${doctor.no_sip}, Pengalaman: ${doctor.experiences}`}
-                      >
-                        <Text strong>{doctor.name}</Text>
-                      </Tooltip>
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item label="Select Date:" name="date">
-                <DatePicker
-                  format="YYYY-MM-DD"
-                  value={selectedDate}
-                  onChange={setSelectedDate}
-                  disabled={!selectedDoctorId}
-                  style={{ width: "100%" }}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item label="Select Time:" name="time">
-                <Select
-                  showSearch
-                  value={selectedTime}
-                  onChange={handleTimeChange}
-                  placeholder="Select a Time"
-                  optionFilterProp="children"
-                  disabled={!times.length}
-                  style={{ width: "100%" }}
-                >
-                  {times.map((slot, index) => (
-                    <Option key={index} value={slot.time}>
-                      {slot.time}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+                  <Tooltip
+                    title={`Nomor SIP: ${doctor.no_sip}, Pengalaman: ${doctor.experiences}`}
+                  >
+                    <Text strong>{doctor.name}</Text>
+                  </Tooltip>
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item label="Select Date:" name="date">
+            <DatePicker
+              format="YYYY-MM-DD"
+              value={selectedDate}
+              onChange={setSelectedDate}
+              disabled={!selectedDoctorId}
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+          <Form.Item label="Select Time:" name="time">
+            <Select
+              showSearch
+              value={selectedTime}
+              onChange={handleTimeChange}
+              placeholder="Select a Time"
+              optionFilterProp="children"
+              disabled={!times.length}
+              style={{ width: "100%" }}
+            >
+              {times.map((slot, index) => (
+                <Option key={index} value={slot.time}>
+                  {slot.time}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
           <FormItem>
             <Button
               style={{
