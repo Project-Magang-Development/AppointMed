@@ -18,6 +18,7 @@ export async function POST(req: Request) {
     const {
       package_name,
       package_description,
+      package_tag,
       package_price,
       package_feature,
       count_order,
@@ -54,6 +55,7 @@ export async function POST(req: Request) {
         package_description,
         package_price,
         package_feature,
+        package_tag,
         count_order: count_order,
         count_doctor: count_doctor,
         duration,

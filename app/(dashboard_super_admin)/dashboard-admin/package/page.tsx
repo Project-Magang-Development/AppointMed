@@ -24,6 +24,7 @@ interface Package {
   package_id: string;
   package_name: string;
   package_description: string;
+  package_tag: string;
   package_feature: string;
   package_price: number;
   count: number;
@@ -80,6 +81,7 @@ export default function AdminPackageDashboard() {
       const payload = {
         package_name: values.name,
         package_description: values.description,
+        package_tag: values.tag,
         package_feature: values.feature,
         package_price: parseInt(values.price),
         count_order: parseInt(values.count_order),
@@ -172,6 +174,7 @@ export default function AdminPackageDashboard() {
     form.setFieldsValue({
       name: packageToEdit.package_name,
       description: packageToEdit.package_description,
+      tag: packageToEdit.package_tag,
       feature: packageToEdit.package_feature,
       price: packageToEdit.package_price,
       count_order: packageToEdit.count_order,
@@ -240,6 +243,11 @@ export default function AdminPackageDashboard() {
       title: "Deskripsi",
       dataIndex: "package_description",
       key: "package_description",
+    },
+    {
+      title: "tag paket",
+      dataIndex: "package_tag",
+      key: "package_tag",
     },
     {
       title: "Fitur",
@@ -352,6 +360,12 @@ export default function AdminPackageDashboard() {
             rules={[{ required: true, message: "Tolong Masukan Deskripsi!" }]}
           >
             <Input placeholder="Deskripsi" />
+          </Form.Item>
+          <Form.Item
+            name="tag"
+            rules={[{ required: true, message: "Tolong Masukan tag!" }]}
+          >
+            <Input placeholder="tag" />
           </Form.Item>
           <Form.Item
             name="feature"

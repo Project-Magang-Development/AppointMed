@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Form, Input, Layout, Typography, message } from "antd";
 import {
@@ -10,14 +10,64 @@ import {
   BankOutlined,
 } from "@ant-design/icons";
 import { useSearchParams } from "next/navigation";
+import { useForm } from "antd/es/form/Form";
 
 const { Content } = Layout;
 const { Title } = Typography;
 
+interface FormData {
+  given_name: string;
+  surname: string;
+  whatsapp: string;
+  company: string;
+  jenis_rental: string;
+  city: string;
+  street_line1: string;
+  email: string;
+  password: string;
+}
+
 const RegisterDashboard: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const packageDataId = searchParams.get("package");
+  const [packageData, setPackageData] = useState<any>("");
+  const [packageName, setPackageName] = useState<string>("");
+  const [pendingId, setPendingId] = useState("");
+  const [form] = useForm<FormData>();
+  const [packageId, setPackageId] = useState<any>("");
   const [loading, setLoading] = useState(false);
+  const [features, setFeatures] = useState<string[]>([]);
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    //sesuaikan dengan url package yang dipilih
+    const package_id = searchParams.get("package");
+    setPackageId(package_id);
+  }, [searchParams]);
+
+  // Fungsi untuk mengambil data pembayaran saat komponen dimuat
+  // useEffect(() => {
+  //   if (packageDataId) {
+  //     axios
+  //       .get(`/api/showDetailPackage?package_id=${packageDataId}`)
+  //       .then((response) => {
+  //         setPackageData(response.data);
+  //         const featureList =
+  //           response.data.features ||
+  //           (response.data.package_feature
+  //             ? response.data.package_feature.split(", ")
+  //             : []);
+  //         setFeatures(featureList);
+
+  //         // Simpan package_name dalam state
+  //         setPackageName(response.data.package_name);
+  //       })
+  //       .catch((error) => {
+  //         console.log(error);
+  //       });
+  //   }
+  // }, [packageDataId]);
 
   const onFinish = async (values: any) => {
     const package_id = searchParams.get("package");
