@@ -14,39 +14,72 @@ model SuperAdmin {
 }
 
 model Merchant {
-  merchant_id          String        @id @default(uuid())
-  merchant_name        String
-  merchant_company     String
-  domain               String
-  status_subscriber    String        @default("Aktif")
-  start_date           DateTime?
-  end_date             DateTime?
-  email                String        @unique
-  password             String
-  api_key              String        @unique
-  used_storage_vehicle Int           @default(0)
-  used_storage_order   Int           @default(0)
-  doctors              Doctor[]
-  schedules            Schedule[]
-  reservation          Reservation[]
-  // merchantPayments  MerchantPayment[]
-  payment              Payment[]
-  queue                Queue[]
-  package_id           String
-  package              Package       @relation(fields: [package_id], references: [package_id])
+  merchant_id            String                 @id @default(uuid())
+  status_subscriber      String                 @default("Aktif")
+  start_date             DateTime?
+  end_date               DateTime?
+  merchant_email         String                 @unique
+  password               String
+  api_key                String                 @unique
+  used_storage_vehicle   Int                    @default(0)
+  used_storage_order     Int                    @default(0)
+  schedules              Schedule[]
+  package_id             String
+  package                Package                @relation(fields: [package_id], references: [package_id])
+  Payment                Payment[]
+  merchant_payment_id    String                 @unique
+  MerchantPayment        MerchantPayment        @relation(fields: [merchant_payment_id], references: [merchant_payment_id])
+  pending_id             String                 @unique
+  MerchantPendingPayment MerchantPendingPayment @relation(fields: [pending_id], references: [pending_id])
+  available_balance      Int
+  reservation            Reservation[]
+  queue                  Queue[]
+  doctors                Doctor[]
+}
+
+model MerchantPayment {
+  merchant_payment_id String @id @default(uuid())
+  pending_id          String @unique
+  invoice_id          String @unique
+  status              String
+
+  MerchantPendingPayment MerchantPendingPayment @relation(fields: [pending_id], references: [pending_id])
+  Merchant               Merchant?
+}
+
+model MerchantPendingPayment {
+  pending_id        String            @id @default(uuid())
+  invoice_id        String            @unique
+  package_name      String
+  package_id        String
+  amount            Int
+  merchant_name     String
+  merchant_email    String
+  password          String
+  merchant_whatsapp String
+  klinik_name       String
+  klinik_type       String
+  merchant_city     String
+  merchant_address  String
+  status            String            @default("Pending")
+  payment_date      DateTime?
+  package           Package           @relation(fields: [package_id], references: [package_id])
+  MerchantPayment   MerchantPayment[]
+  Merchant          Merchant?
 }
 
 model Package {
-  package_id          String     @id @default(uuid())
-  package_name        String
-  package_description String
-  package_tag         String?
-  package_price       Int
-  package_feature     String
-  count_doctor        Int?
-  count_order         Int?
-  duration            Int
-  merchants           Merchant[]
+  package_id             String                   @id @default(uuid())
+  package_name           String
+  package_description    String
+  package_tag            String?
+  package_price          Int
+  package_feature        String
+  count_doctor           Int?
+  count_order            Int?
+  duration               Int
+  merchants              Merchant[]
+  MerchantPendingPayment MerchantPendingPayment[]
 }
 
 model Doctor {

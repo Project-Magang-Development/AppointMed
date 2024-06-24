@@ -28,13 +28,27 @@ const fetcher = async (url: string) => {
 };
 
 const Home: React.FC = () => {
-  const [loadingButton, setLoadingButton] = useState<string | null>(null);
+  const [loadingButton, setLoadingButton] = useState<Record<number, boolean>>(
+    {}
+  );
+
   const [features, setFeatures] = useState<string[][]>([]);
+  const [sortedPackages, setSortedPackages] = useState<Package[]>([]);
   const { data: packages, error } = useSWR<Package[]>(
     "/api/showPackage",
     fetcher
   );
   const router = useRouter();
+
+  useEffect(() => {
+    if (packages) {
+      // Urutkan data berdasarkan harga dari terendah ke tertinggi
+      const sorted = [...packages].sort(
+        (a, b) => a.package_price - b.package_price
+      );
+      setSortedPackages(sorted);
+    }
+  }, [packages]);
 
   useEffect(() => {
     if (packages) {
@@ -58,17 +72,22 @@ const Home: React.FC = () => {
     );
   }
 
-  const handleCardClick = async (packageId: string) => {
+  const handleCardClick = async (packageId: number) => {
     try {
-      setLoadingButton(packageId);
+      // Set loading true untuk button spesifik
+      setLoadingButton((prev) => ({ ...prev, [packageId]: true }));
       await router.push(`/home/register?package=${packageId}`);
     } catch (error) {
       console.error(error);
       message.error("Terjadi kesalahan saat memilih paket");
     } finally {
-      setLoadingButton(null);
+      // Set loading false untuk button spesifik
+      setLoadingButton((prev) => ({ ...prev, [packageId]: false }));
     }
   };
+
+  if (error) return <div>Error loading packages</div>;
+  if (!packages) return <div>Loading packages...</div>;
 
   return (
     <div>
@@ -95,18 +114,20 @@ const Home: React.FC = () => {
             height: " auto",
           }}
         >
-          {packages.map((pkg, index) => (
+          {sortedPackages.map((pkg, index) => (
             <Flex
               vertical
-              justify="end"
+              justify="start"
               gap={15}
               key={pkg.package_id}
               style={{
                 margin: "1rem",
                 padding: "0px",
-                width: "320px",
+                width: "270px",
                 height: "auto",
-                borderRadius: "15px",
+                overflow: "hidden",
+                minWidth: "15%",
+                borderRadius: "16px",
                 WebkitBoxShadow: "-39px 16px 79px -1px rgba(0,0,0,0.14)",
                 MozBoxShadow: "-39px 16px 79px -1px rgba(0,0,0,0.14)",
                 boxShadow: "-39px 16px 79px -1px rgba(0,0,0,0.14)",
@@ -148,7 +169,7 @@ const Home: React.FC = () => {
                 </Flex>
               </Flex>
 
-              <Flex style={{ paddingInline: "2rem" }} vertical>
+              <Flex style={{ paddingInline: "1.5rem" }} vertical>
                 <div
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
@@ -180,7 +201,7 @@ const Home: React.FC = () => {
                 >
                   {pkg.package_description}
                 </p>
-                <ul style={{ marginTop: "0.2rem" }}>
+                <ul style={{ marginTop: "0.2rem", fontSize: "13px" }}>
                   {features[index]?.length > 0 ? (
                     features[index].map((feature, idx) => (
                       <li
@@ -194,6 +215,7 @@ const Home: React.FC = () => {
                         <CheckOutlined
                           style={{
                             marginRight: "5px",
+
                             color:
                               pkg.package_tag === "Istimewa"
                                 ? "white"
@@ -216,8 +238,8 @@ const Home: React.FC = () => {
                 }}
               >
                 <Button
-                  onClick={() => handleCardClick(pkg.package_id.toString())}
-                  loading={loadingButton === pkg.package_id.toString()}
+                  onClick={() => handleCardClick(pkg.package_id)}
+                  loading={loadingButton[pkg.package_id]} // Gunakan state spesifik untuk loading
                   block
                   size="large"
                   style={{

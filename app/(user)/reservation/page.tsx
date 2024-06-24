@@ -42,7 +42,7 @@ export default function FormPage() {
       patient_gender: values.patient_gender,
       patient_email: values.patient_email,
       patient_address: values.patient_address,
-      no_reservation: no_reservation, 
+      no_reservation: no_reservation,
     };
 
     try {
@@ -87,7 +87,7 @@ export default function FormPage() {
         {
           key: "doctor_name",
           field: "Doctor Name",
-          value: reservationData.data.Schedule.doctors.name,
+          value: reservationData.data.Schedule.doctor.name,
         },
         {
           key: "patient_gender",

@@ -11,3 +11,24 @@
 .font {
   font-family: var(--my-font-family);
 }
+
+.custom-select .ant-select-selector {
+  border-color: #007e85 !important;
+  border-radius: 15px !important;
+}
+
+.custom-select .ant-select-focused .ant-select-selector {
+  border-color: #007e85 !important;
+  box-shadow: 0 0 0 2px rgba(0, 126, 133, 0.2) !important;
+}
+
+@media (max-width: 800px) {
+  .logo-login {
+    justify-content: center;
+  }
+}
+@media (max-width: 956px) {
+  .half-color-login {
+    display: none;
+  }
+}

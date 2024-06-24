@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Lato } from "next/font/google";
+import { Lato, Poppins } from "next/font/google";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "./globals.css";
 
-const lato = Lato({
+const lato = Poppins({
   subsets: ["latin"],
   display: "swap",
   weight: ["100", "300", "400", "700", "900"],

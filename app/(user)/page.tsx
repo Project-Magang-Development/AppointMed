@@ -53,7 +53,7 @@ interface TimeSlot {
 
 export default function Home() {
   const [apiKey, setApiKey] = useState(
-    "d41ab1db43222e69f705d61b3b1621f8a039747b284067c2a8341a78a9c2b8a5"
+    "fd86d620febfa7ec759d3d640aaae4a8508e746862f6323ac293308878c98423"
   );
   const [selectedSpecialist, setSelectedSpecialist] = useState<string>("");
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
