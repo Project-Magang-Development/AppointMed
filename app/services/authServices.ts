@@ -9,13 +9,11 @@ interface MyTokenPayload extends JwtPayload {
   api_key: string;
   merchant_company: string;
 }
-export const login = () => {
+
+export const login = (): boolean => {
   const token = Cookies.get("token");
-  if (token) {
-    return true;
-  } else {
-    return false;
-  }
+  const adminToken = Cookies.get("adminToken");
+  return !!token && !!adminToken;
 };
 
 export const getCompanyName = (token: string) => {
@@ -26,6 +24,16 @@ export const getCompanyName = (token: string) => {
 export const getName = (token: string) => {
   const decoded = jwtDecode<MyTokenPayload>(token);
   return decoded.merchant_name;
+};
+
+export const getMerchantId = (token: string) => {
+  const decoded = jwtDecode<MyTokenPayload>(token);
+  return decoded.merchantId;
+};
+
+export const getEmail = (token: string) => {
+  const decoded = jwtDecode<MyTokenPayload>(token);
+  return decoded.email;
 };
 
 export const getApiKey = (token: string) => {

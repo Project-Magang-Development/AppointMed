@@ -22,9 +22,11 @@ import {
   CheckOutlined,
 } from "@ant-design/icons";
 import { useSearchParams } from "next/navigation";
+
 import { useForm } from "antd/es/form/Form";
 import axios from "axios";
 import Navbar from "@/app/components/Navbar";
+import Scheduler from "schedules-appointmed";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -56,6 +58,8 @@ const RegisterDashboard: React.FC = () => {
 
   useEffect(() => {
     //sesuaikan dengan url package yang dipilih
+
+  const onFinish = async (values: any) => {
     const package_id = searchParams.get("package");
     setPackageId(package_id);
   }, [searchParams]);

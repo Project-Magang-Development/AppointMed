@@ -51,10 +51,16 @@ interface TimeSlot {
   reservationNo: string;
 }
 
+
 export default function Home() {
   const [apiKey, setApiKey] = useState(
     "fd86d620febfa7ec759d3d640aaae4a8508e746862f6323ac293308878c98423"
   );
+type PageProps = {
+  apiKey: string;
+}
+
+const Schedules: React.FC<PageProps> = ({  }) => {
   const [selectedSpecialist, setSelectedSpecialist] = useState<string>("");
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
@@ -63,15 +69,9 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [times, setTimes] = useState<TimeSlot[]>([]);
   const [selectedScheduleId, setSelectedScheduleId] = useState<string>("");
-
-  useEffect(() => {
-    const key = document
-      .querySelector("script[apiKey]")
-      ?.getAttribute("apiKey");
-    if (key) {
-      setApiKey(key);
-    }
-  }, []);
+  const apiBaseUrl ='http://localhost:3001';
+  const apiKey =
+    "d41ab1db43222e69f705d61b3b1621f8a039747b284067c2a8341a78a9c2b8a5";
 
   const fetcher = (url: string) =>
     fetch(url, {
@@ -84,13 +84,19 @@ export default function Home() {
     data: doctors,
     error: doctorsError,
     isValidating: isLoadingDoctors,
-  } = useSWR<Doctor[]>("/api/doctor/showSpecialist", fetcher);
+  } = useSWR<Doctor[]>(
+    `${apiBaseUrl}/api/doctor/showSpecialist`,
+    fetcher
+  );
 
   const {
     data: reservations,
     error: reservationsError,
     isValidating: isLoadingReservations,
-  } = useSWR<Reservation[]>("/api/reservation/showReservation", fetcher);
+  } = useSWR<Reservation[]>(
+    `${apiBaseUrl}/api/reservation/showReservation`,
+    fetcher
+  );
 
   useEffect(() => {
     if (selectedSpecialist && doctors) {
@@ -109,7 +115,7 @@ export default function Home() {
     if (selectedDoctorId && selectedDate) {
       const formattedDate = selectedDate.format("YYYY-MM-DD");
       fetch(
-        `/api/schedule/showTime?doctorId=${selectedDoctorId}&date=${formattedDate}`
+        `${apiBaseUrl}/api/schedule/showTime?doctorId=${selectedDoctorId}&date=${formattedDate}`
       )
         .then((res) => res.json())
         .then((schedules) => {
@@ -183,7 +189,7 @@ export default function Home() {
         : "";
 
       if (reservationNo) {
-        const reservationUrl = `http://localhost:3000/reservation?scheduleId=${selectedScheduleId}&date_time=${utcDateTime}&apiKey=${apiKey}&no_reservation=${reservationNo}`;
+        const reservationUrl = `${apiBaseUrl}/reservation?scheduleId=${selectedScheduleId}&date_time=${utcDateTime}&apiKey=${apiKey}&no_reservation=${reservationNo}`;
         window.location.href = reservationUrl;
       } else {
         console.error("Reservation number is null or empty.");
@@ -267,6 +273,107 @@ export default function Home() {
                   key={doctor.doctor_id}
                   value={doctor.name}
                   label={doctor.name}
+          <Row
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "20px",
+            }}
+          >
+            <Steps size="small" current={0} style={{ marginBottom: "20px" }}>
+              <Step title="Select Doctor" />
+              <Step title="Fill Personal Data" />
+              <Step title="Payment Process" />
+              <Step title="Done" />
+            </Steps>
+          </Row>
+          <Title
+            level={2}
+            style={{ marginBottom: "30px", textAlign: "center" }}
+          >
+            Quick Reservation
+          </Title>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item label="Choose Specialist:" name="specialist">
+                <Select
+                  showSearch
+                  value={selectedSpecialist}
+                  onChange={setSelectedSpecialist}
+                  placeholder="Select a Specialist"
+                  optionFilterProp="children"
+                >
+                  {Array.isArray(doctors) &&
+                    Array.from(
+                      new Set(doctors.map((doctor) => doctor.specialist))
+                    ).map((specialist) => (
+                      <Option key={specialist} value={specialist}>
+                        {specialist}
+                      </Option>
+                    ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Select Doctor:" name="doctor">
+                <Select
+                  showSearch
+                  value={selectedDoctorName}
+                  onChange={(value) => {
+                    const selectedDoc = filteredDoctors.find(
+                      (doctor) => doctor.name === value
+                    );
+                    if (selectedDoc) {
+                      setSelectedDoctorId(selectedDoc.doctor_id);
+                      setSelectedDoctorName(selectedDoc.name);
+                    } else {
+                      setSelectedDoctorId("");
+                      setSelectedDoctorName("");
+                    }
+                  }}
+                  placeholder="Select a Doctor"
+                  optionFilterProp="children"
+                  disabled={!filteredDoctors.length}
+                >
+                  {filteredDoctors.map((doctor) => (
+                    <Option
+                      key={doctor.doctor_id}
+                      value={doctor.name}
+                      label={doctor.name}
+                    >
+                      <Tooltip
+                        title={`Nomor SIP: ${doctor.no_sip}, Pengalaman: ${doctor.experiences}`}
+                      >
+                        <Text strong>{doctor.name}</Text>
+                      </Tooltip>
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item label="Select Date:" name="date">
+                <DatePicker
+                  format="YYYY-MM-DD"
+                  value={selectedDate}
+                  onChange={setSelectedDate}
+                  disabled={!selectedDoctorId}
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Select Time:" name="time">
+                <Select
+                  showSearch
+                  value={selectedTime}
+                  onChange={handleTimeChange}
+                  placeholder="Select a Time"
+                  optionFilterProp="children"
+                  disabled={!times.length}
+                  style={{ width: "100%" }}
                 >
                   <Tooltip
                     title={`Nomor SIP: ${doctor.no_sip}, Pengalaman: ${doctor.experiences}`}
@@ -314,7 +421,7 @@ export default function Home() {
               htmlType="submit"
               block
             >
-              Lanjut
+              Next
             </Button>
           </FormItem>
           <h1
@@ -335,4 +442,6 @@ export default function Home() {
       </Content>
     </div>
   );
-}
+};
+
+export default Schedules;

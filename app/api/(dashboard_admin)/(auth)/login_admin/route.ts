@@ -47,8 +47,11 @@ export async function POST(req: Request) {
     const token = jwt.sign(
       {
         merchantId: merchant.merchant_id,
+
         merchant_name: merchantPendingPayment?.merchant_name,
         email: merchant.merchant_email,
+        merchant_company: merchant.merchant_company,
+        merchant_name: merchant.merchant_name,
         api_key: merchant.api_key,
       },
       process.env.JWT_SECRET as string

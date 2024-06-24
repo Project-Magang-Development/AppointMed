@@ -8,7 +8,7 @@ export async function GET(req: Request) {
 
     const schedule = await prisma.schedule.findUnique({
       where: { schedules_id },
-      include: { doctors: { select: { name: true } } }, // Memilih hanya nama dokter
+      include: { doctor: { select: { name: true } } }, // Memilih hanya nama dokter
     });
 
     if (!schedule) {
@@ -20,7 +20,7 @@ export async function GET(req: Request) {
       });
     }
 
-    const doctorName = schedule.doctors?.name ?? "Unknown";
+    const doctorName = schedule.doctor?.name ?? "Unknown";
 
     return new NextResponse(JSON.stringify({ doctorName }), {
       status: 200,

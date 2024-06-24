@@ -63,6 +63,10 @@ const FileMarkdownTwoTone = dynamic(() =>
   import("@ant-design/icons").then((icon) => icon.FileMarkdownTwoTone)
 );
 
+const ThunderboltOutlined = dynamic(() =>
+  import("@ant-design/icons").then((icon) => icon.ThunderboltOutlined)
+);
+
 const Avatar = dynamic(() => import("antd").then((mod) => mod.Avatar), {
   ssr: false,
   loading: () => <Spin size="small" />,
@@ -298,9 +302,46 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     />
   );
 
-  // if (loading) {
-  //   return <LayoutSkeleton />;
-  // }
+const showSubscription = () => {
+  router.push(`/dashboard/subscription`);
+};
+
+const showDocumentation = () => {
+  setSelectedContent("dokumentasi");
+};
+
+const userMenu = (
+  <Menu
+    items={[
+      {
+        key: "apiKey",
+        label: "API Key",
+        icon: <KeyOutlined />,
+        onClick: () => showApiKey(apiKey),
+      },
+      {
+        key: "dokumentasi",
+        label: "Dokumentasi",
+        icon: <FileMarkdownTwoTone />,
+        onClick: () => showDocumentation(),
+      },
+      {
+        key: "langganan",
+        label: "Langganan",
+        icon: <ThunderboltOutlined />,
+        onClick: () => showSubscription(),
+      },
+      {
+        key: "logout",
+        label: "Keluar",
+        icon: <LogoutOutlined />,
+        onClick: confirmLogout,
+      },
+    ]}
+  />
+);
+
+
 
   return (
     <Layout hasSider style={{ minHeight: "100vh" }}>

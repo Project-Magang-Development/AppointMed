@@ -95,6 +95,7 @@ export async function POST(req: NextRequest) {
         patient_name,
         patient_email,
         patient_gender,
+        patient_address,
         patient_phone,
         merchant_id: merchant?.merchant_id,
         patient_address,
@@ -106,6 +107,12 @@ export async function POST(req: NextRequest) {
           },
         },
       },
+    });
+
+
+    await prisma.merchant.update({
+      where: { merchant_id: merchant!.merchant_id },
+      data: { used_storage_order: { increment: 1 } },
     });
 
     const doctorEmail = schedule.doctor.email;
