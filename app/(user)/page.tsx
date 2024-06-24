@@ -51,10 +51,11 @@ interface TimeSlot {
   reservationNo: string;
 }
 
-export default function Home() {
-  const [apiKey, setApiKey] = useState(
-    "d41ab1db43222e69f705d61b3b1621f8a039747b284067c2a8341a78a9c2b8a5"
-  );
+type PageProps = {
+  apiKey: string;
+}
+
+const Schedules: React.FC<PageProps> = ({  }) => {
   const [selectedSpecialist, setSelectedSpecialist] = useState<string>("");
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
@@ -63,15 +64,9 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [times, setTimes] = useState<TimeSlot[]>([]);
   const [selectedScheduleId, setSelectedScheduleId] = useState<string>("");
-
-  useEffect(() => {
-    const key = document
-      .querySelector("script[apiKey]")
-      ?.getAttribute("apiKey");
-    if (key) {
-      setApiKey(key);
-    }
-  }, []);
+  const apiBaseUrl ='http://localhost:3001';
+  const apiKey =
+    "d41ab1db43222e69f705d61b3b1621f8a039747b284067c2a8341a78a9c2b8a5";
 
   const fetcher = (url: string) =>
     fetch(url, {
@@ -84,13 +79,19 @@ export default function Home() {
     data: doctors,
     error: doctorsError,
     isValidating: isLoadingDoctors,
-  } = useSWR<Doctor[]>("/api/doctor/showSpecialist", fetcher);
+  } = useSWR<Doctor[]>(
+    `${apiBaseUrl}/api/doctor/showSpecialist`,
+    fetcher
+  );
 
   const {
     data: reservations,
     error: reservationsError,
     isValidating: isLoadingReservations,
-  } = useSWR<Reservation[]>("/api/reservation/showReservation", fetcher);
+  } = useSWR<Reservation[]>(
+    `${apiBaseUrl}/api/reservation/showReservation`,
+    fetcher
+  );
 
   useEffect(() => {
     if (selectedSpecialist && doctors) {
@@ -109,7 +110,7 @@ export default function Home() {
     if (selectedDoctorId && selectedDate) {
       const formattedDate = selectedDate.format("YYYY-MM-DD");
       fetch(
-        `/api/schedule/showTime?doctorId=${selectedDoctorId}&date=${formattedDate}`
+        `${apiBaseUrl}/api/schedule/showTime?doctorId=${selectedDoctorId}&date=${formattedDate}`
       )
         .then((res) => res.json())
         .then((schedules) => {
@@ -183,7 +184,7 @@ export default function Home() {
         : "";
 
       if (reservationNo) {
-        const reservationUrl = `http://localhost:3000/reservation?scheduleId=${selectedScheduleId}&date_time=${utcDateTime}&apiKey=${apiKey}&no_reservation=${reservationNo}`;
+        const reservationUrl = `${apiBaseUrl}/reservation?scheduleId=${selectedScheduleId}&date_time=${utcDateTime}&apiKey=${apiKey}&no_reservation=${reservationNo}`;
         window.location.href = reservationUrl;
       } else {
         console.error("Reservation number is null or empty.");
@@ -233,7 +234,10 @@ export default function Home() {
               <Step title="Done" />
             </Steps>
           </Row>
-          <Title level={2} style={{ marginBottom: "30px", textAlign: "center" }}>
+          <Title
+            level={2}
+            style={{ marginBottom: "30px", textAlign: "center" }}
+          >
             Quick Reservation
           </Title>
           <Row gutter={24}>
@@ -338,7 +342,7 @@ export default function Home() {
               htmlType="submit"
               block
             >
-              Lanjut
+              Next
             </Button>
           </FormItem>
           <h1
@@ -359,4 +363,6 @@ export default function Home() {
       </Content>
     </div>
   );
-}
+};
+
+export default Schedules;

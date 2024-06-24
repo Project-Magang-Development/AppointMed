@@ -58,6 +58,10 @@ const FileMarkdownTwoTone = dynamic(() =>
   import("@ant-design/icons").then((icon) => icon.FileMarkdownTwoTone)
 );
 
+const ThunderboltOutlined = dynamic(() =>
+  import("@ant-design/icons").then((icon) => icon.ThunderboltOutlined)
+);
+
 const Avatar = dynamic(() => import("antd").then((mod) => mod.Avatar), {
   ssr: false,
   loading: () => <Spin size="small" />,
@@ -258,6 +262,10 @@ const showApiKey = (apiKey: string) => {
   });
 };
 
+const showSubscription = () => {
+  router.push(`/dashboard/subscription`);
+};
+
 const showDocumentation = () => {
   setSelectedContent("dokumentasi");
 };
@@ -278,6 +286,12 @@ const userMenu = (
         onClick: () => showDocumentation(),
       },
       {
+        key: "langganan",
+        label: "Langganan",
+        icon: <ThunderboltOutlined />,
+        onClick: () => showSubscription(),
+      },
+      {
         key: "logout",
         label: "Keluar",
         icon: <LogoutOutlined />,
@@ -287,9 +301,6 @@ const userMenu = (
   />
 );
 
-  // if (loading) {
-  //   return <LayoutSkeleton />;
-  // }
 
   return (
     <Layout hasSider style={{ minHeight: "100vh" }}>

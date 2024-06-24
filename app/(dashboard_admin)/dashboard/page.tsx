@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import useSWR, { mutate } from "swr";
+import useSWR, { mutate, SWRConfig } from "swr";
 import Cookies from "js-cookie";
 import { Row, Col, Card, Statistic, Alert, Typography, Flex, Modal, Spin, Avatar, Table } from "antd";
 import { ClockCircleOutlined, UserOutlined } from "@ant-design/icons";
@@ -12,6 +12,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import allLocales from "@fullcalendar/core/locales-all";
+import DashboardSkeleton from "@/app/components/dashboardSkeleton";
 
 dayjs.extend(utc);
 
@@ -44,7 +45,7 @@ const fetcher = (url: string) =>
     });
 
 export default function AdminDashboard() {
-  const { data: countData, error: countError } = useSWR(
+  const { data: countData, error: countError, isLoading: loading } = useSWR(
     "/api/reservation/countPatient",
     fetcher
   );
@@ -52,11 +53,13 @@ export default function AdminDashboard() {
     data: showQueue,
     error: showQueueError,
     mutate,
+    isLoading,
   } = useSWR("/api/queue/showQueueDashboard", fetcher);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<EventDetails | null>(null);
 
   const [currentTime, setCurrentTime] = useState(new Date());
+
 
   const handleEventClick = (clickInfo: any) => {
     setSelectedEvent({
@@ -157,7 +160,7 @@ export default function AdminDashboard() {
   if (countError || showQueueError)
     return <Alert message="Error loading data!" type="error" />;
 
-if(countData == null || showQueue == null) return <Spin tip="Loading..." />
+if(countData == null || showQueue == null) return <DashboardSkeleton/>
 
   const stats = [
     {
@@ -173,133 +176,137 @@ if(countData == null || showQueue == null) return <Spin tip="Loading..." />
   ];
 
   return (
-    <div>
-      <Row gutter={16} style={{ marginBottom: 20 }}>
-        {stats.map((item, index) => (
-          <Col span={6} key={index}>
-            <Card
-              bordered={false}
-              bodyStyle={{
-                padding: "24px",
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-              }}
-              style={{
-                backgroundColor: "white",
-                borderRadius: "10px",
-                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-              }}
-            >
-              <div
-                style={{
-                  width: "100%",
+    <SWRConfig>
+      <div>
+        <Row gutter={16} style={{ marginBottom: 20 }}>
+          {stats.map((item, index) => (
+            <Col span={6} key={index}>
+              <Card
+                bordered={false}
+                bodyStyle={{
+                  padding: "24px",
                   display: "flex",
-                  justifyContent: "space-between",
+                  flexDirection: "column",
+                  height: "100%",
                 }}
-              >
-                <h3 style={{ margin: 0, fontWeight: "bold", color: "gray" }}>
-                  {item.title}
-                </h3>
-                {React.cloneElement(item.icon, {
-                  style: { fontSize: "24px", color: "#8260FE" },
-                })}
-              </div>
-              <div
                 style={{
-                  alignSelf: "flex-start",
-                  margin: "10px 0 0",
-                  width: "100%",
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
                 }}
               >
-                <Statistic
-                  value={item.value}
-                  valueStyle={{
-                    color: "black",
-                    fontSize: "24px",
-                    fontWeight: "bold",
-                  }}
-                />
-              </div>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-      <Flex justify="space-between">
-        <Col flex="2">
-          <Card bordered={false} style={{ marginRight: 8 }}>
-            {renderModal()}
-            <FullCalendar
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              initialView="dayGridMonth"
-              locales={allLocales}
-              locale="id"
-              events={
-                showQueue
-                  ? showQueue.map((queue: any) => ({
-                      title: `${queue.Reservation.patient_name}`,
-                      start: dayjs
-                        .utc(queue.Reservation.date_time)
-                        .format("YYYY-MM-DD"),
-                      extendedProps: {
-                        patient_name: queue.Reservation.patient_name,
-                        doctor_name: queue.Reservation.Schedule.doctors.name,
-                        patient_phone: queue.Reservation.patient_phone,
-                        patient_gender: queue.Reservation.patient_gender,
-                        time: dayjs
-                          .utc(queue.Reservation.date_time)
-                          .format("HH:mm"),
-                      },
-                    }))
-                  : []
-              }
-              eventClick={handleEventClick}
-            />
-          </Card>
-        </Col>
-        <Col flex="1">
-          <Card title="Antrian Pasien" style={{ marginLeft: 8 }}>
-            {showQueue && showQueue.length > 0 ? (
-              showQueue.map((queue: any, index: any) => (
                 <div
-                  key={index}
                   style={{
-                    marginBottom: 16,
-                    borderBottom: "1px solid #eee",
-                    paddingBottom: 16,
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "space-between",
                   }}
                 >
-                  <Row justify="space-between">
-                    <Col>
-                      <Avatar
-                        style={{
-                          backgroundColor: "#1890ff",
-                          verticalAlign: "middle",
-                          width: "40px",
-                          height: "40px",
-                          lineHeight: "50px",
-                          fontSize: "13px",
-                        }}
-                      >
-                        {queue.Reservation.no_reservation}
-                      </Avatar>
-                    </Col>
-                    <Col>
-                      <Title level={5}>{queue.Reservation.patient_name}</Title>
-                      <p>{queue.Reservation.Schedule.doctors.name}</p>
-                    </Col>
-                    <p>
-                      {dayjs.utc(queue.Reservation.date_time).format("HH:mm")}
-                    </p>
-                  </Row>
+                  <h3 style={{ margin: 0, fontWeight: "bold", color: "gray" }}>
+                    {item.title}
+                  </h3>
+                  {React.cloneElement(item.icon, {
+                    style: { fontSize: "24px", color: "#8260FE" },
+                  })}
                 </div>
-              ))
-            ) : (
-              <Alert message="Tidak ada antrian." type="info" showIcon />
-            )}
-          </Card>
-        </Col>
-      </Flex>
-    </div>
+                <div
+                  style={{
+                    alignSelf: "flex-start",
+                    margin: "10px 0 0",
+                    width: "100%",
+                  }}
+                >
+                  <Statistic
+                    value={item.value}
+                    valueStyle={{
+                      color: "black",
+                      fontSize: "24px",
+                      fontWeight: "bold",
+                    }}
+                  />
+                </div>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+        <Flex justify="space-between">
+          <Col flex="2">
+            <Card bordered={false} style={{ marginRight: 8 }}>
+              {renderModal()}
+              <FullCalendar
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                initialView="dayGridMonth"
+                locales={allLocales}
+                locale="id"
+                events={
+                  showQueue
+                    ? showQueue.map((queue: any) => ({
+                        title: `${queue.Reservation.patient_name}`,
+                        start: dayjs
+                          .utc(queue.Reservation.date_time)
+                          .format("YYYY-MM-DD"),
+                        extendedProps: {
+                          patient_name: queue.Reservation.patient_name,
+                          doctor_name: queue.Reservation.Schedule.doctors.name,
+                          patient_phone: queue.Reservation.patient_phone,
+                          patient_gender: queue.Reservation.patient_gender,
+                          time: dayjs
+                            .utc(queue.Reservation.date_time)
+                            .format("HH:mm"),
+                        },
+                      }))
+                    : []
+                }
+                eventClick={handleEventClick}
+              />
+            </Card>
+          </Col>
+          <Col flex="1">
+            <Card title="Antrian Pasien" style={{ marginLeft: 8 }}>
+              {showQueue && showQueue.length > 0 ? (
+                showQueue.map((queue: any, index: any) => (
+                  <div
+                    key={index}
+                    style={{
+                      marginBottom: 16,
+                      borderBottom: "1px solid #eee",
+                      paddingBottom: 16,
+                    }}
+                  >
+                    <Row justify="space-between">
+                      <Col>
+                        <Avatar
+                          style={{
+                            backgroundColor: "#1890ff",
+                            verticalAlign: "middle",
+                            width: "40px",
+                            height: "40px",
+                            lineHeight: "50px",
+                            fontSize: "13px",
+                          }}
+                        >
+                          {queue.Reservation.no_reservation}
+                        </Avatar>
+                      </Col>
+                      <Col>
+                        <Title level={5}>
+                          {queue.Reservation.patient_name}
+                        </Title>
+                        <p>{queue.Reservation.Schedule.doctors.name}</p>
+                      </Col>
+                      <p>
+                        {dayjs.utc(queue.Reservation.date_time).format("HH:mm")}
+                      </p>
+                    </Row>
+                  </div>
+                ))
+              ) : (
+                <Alert message="Tidak ada antrian." type="info" showIcon />
+              )}
+            </Card>
+          </Col>
+        </Flex>
+      </div>
+    </SWRConfig>
   );
 }

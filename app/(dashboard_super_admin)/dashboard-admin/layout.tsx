@@ -14,7 +14,6 @@ import {
 import type { MenuProps } from "antd";
 import {
   Avatar,
-  Badge,
   Breadcrumb,
   Divider,
   Dropdown,
@@ -29,6 +28,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCompanyName, useMerchantName } from "../../hooks/useLogin";
 import Image from "next/image";
 import Cookies from "js-cookie";
+import { login } from "@/app/services/authServices";
+import { useRedirectBasedOnToken } from "@/app/hooks/useRedirectBasedOnToken";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -61,6 +62,14 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     pathname.includes(route)
   );
 
+  useEffect(() => {
+    if(!login){
+      if(!Cookies.get("tokenAdmin")){
+        router.push("/dashboard-admin/login")
+      }
+    }
+  },[router])
+ 
   const fetchDataWithLastChecked = async (
     endpoint: string,
     lastCheckedKey: string,
@@ -94,6 +103,8 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       console.error("Error fetching data:", error);
     }
   };
+
+  useRedirectBasedOnToken();
 
   if (shouldHideSidebar) {
     return <>{children}</>;

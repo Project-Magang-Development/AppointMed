@@ -8,8 +8,6 @@ export async function GET(req: Request) {
      const apiKeyHeader = req.headers.get("Authorization");
      const apiKey = apiKeyHeader?.split(" ")[1];
 
-     console.log(apiKey);
-
      if (!apiKey) {
        return new Response(JSON.stringify({ error: "API key not provided" }), {
          status: 401,

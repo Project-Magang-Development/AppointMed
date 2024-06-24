@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
       patient_gender,
       patient_email,
       no_reservation,
+      patient_address,
     } = body;
 
     if (
@@ -28,7 +29,8 @@ export async function POST(req: NextRequest) {
       !patient_phone ||
       !patient_gender ||
       !patient_email ||
-      !no_reservation
+      !no_reservation ||
+      !patient_address
     ) {
       return new NextResponse(
         JSON.stringify({ error: "Missing required fields" }),
@@ -55,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     const schedule = await prisma.schedule.findUnique({
       where: { schedules_id },
-      include: { doctors: true },
+      include: { doctor: true },
     });
 
     if (!schedule) {
@@ -94,19 +96,25 @@ export async function POST(req: NextRequest) {
         patient_name,
         patient_email,
         patient_gender,
+        patient_address,
         patient_phone,
         merchant_id: merchant?.merchant_id,
       },
       include: {
         Schedule: {
           include: {
-            doctors: true,
+            doctor: true,
           },
         },
       },
     });
 
-    const doctorEmail = schedule.doctors.email;
+    await prisma.merchant.update({
+      where: { merchant_id: merchant!.merchant_id },
+      data: { used_storage_order: { increment: 1 } },
+    });
+
+    const doctorEmail = schedule.doctor.email;
 
     let transporter = nodemailer.createTransport({
       service: "gmail",
@@ -186,11 +194,11 @@ export async function POST(req: NextRequest) {
             </div>
             <div class="form-group">
                 <label>Nama Dokter:</label>
-                <div class="value">${schedule.doctors.name}</div>
+                <div class="value">${schedule.doctor.name}</div>
             </div>
             <div class="form-group">
                 <label>Spesialis:</label>
-                <div class="value">${schedule.doctors.specialist}</div>
+                <div class="value">${schedule.doctor.specialist}</div>
             </div>
             <div class="form-group">
                 <label>Hari dan Tanggal:</label>
@@ -227,7 +235,7 @@ export async function POST(req: NextRequest) {
             <h1 style="color: #ffffff; margin: 0; padding: 0 20px;">Detail Reservasi Pasien</h1>
           </div>
           <div style="padding: 20px;">
-            <p style="font-size: 16px;">Hai Dokter ${schedule.doctors.name},</p>
+            <p style="font-size: 16px;">Hai Dokter ${schedule.doctor.name},</p>
             <p style="font-size: 16px;">Berikut adalah detail reservasi pasien:</p>
             <table style="width: 100%; margin: 20px 0; border-collapse: collapse;">
               <tr>

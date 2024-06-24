@@ -10,6 +10,7 @@ import {
   BankOutlined,
 } from "@ant-design/icons";
 import { useSearchParams } from "next/navigation";
+import Scheduler from "schedules-appointmed";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -18,6 +19,7 @@ const RegisterDashboard: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+
 
   const onFinish = async (values: any) => {
     const package_id = searchParams.get("package");
