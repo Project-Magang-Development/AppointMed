@@ -24,7 +24,7 @@ model Merchant {
   email             String   @unique
   password          String
   api_key                   String   @unique
-  used_storage_vehicle      Int     @default(0)
+  used_storage_doctor      Int     @default(0)
   used_storage_order        Int     @default(0)
   doctors           Doctor[]
   schedules         Schedule[]

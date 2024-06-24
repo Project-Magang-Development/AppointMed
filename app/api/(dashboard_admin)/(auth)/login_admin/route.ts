@@ -37,6 +37,7 @@ export async function POST(req: Request) {
         email: merchant.email,
         merchant_company: merchant.merchant_company,
         merchant_name: merchant.merchant_name,
+        api_key: merchant.api_key,
       },
       process.env.JWT_SECRET as string
     );
