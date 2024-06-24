@@ -115,6 +115,13 @@ export default function FormPage() {
     ? [
         {
           key: "doctor_name",
+          field: "Doctor Name",
+          value: reservationData.data.Schedule.doctor.name,
+        },
+        {
+          key: "patient_gender",
+          field: "Patient Gender",
+          value: reservationData.data.patient_gender,
           doctor: detailSchedule.detailSchedule.doctor.name,
           date: dayjs(reservationData.Schedule.date).format("D MMM YYYY"),
           cost: `Rp ${detailSchedule.detailSchedule.doctor.price.toLocaleString()}`,

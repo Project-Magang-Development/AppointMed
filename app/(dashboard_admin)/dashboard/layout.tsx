@@ -18,12 +18,17 @@ import {
 } from "antd";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useApiKey, useCompanyName, useMerchantName } from "../../hooks/useLogin";
+import {
+  useApiKey,
+  useCompanyName,
+  useMerchantName,
+} from "../../hooks/useLogin";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import LayoutSkeleton from "@/app/components/layoutSkeleton";
 import Cookies from "js-cookie";
 import Paragraph from "antd/es/typography/Paragraph";
+import { styleText } from "util";
 
 const BookOutlined = dynamic(() =>
   import("@ant-design/icons").then((icon) => icon.BookOutlined)
@@ -186,29 +191,6 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return <>{children}</>;
   }
 
-  const items: MenuItem[] = [
-    {
-      key: "/dashboard",
-      icon: <DashboardOutlined />,
-      label: <Link href="/dashboard">Dashboard</Link>,
-    },
-    {
-      key: "/dashboard/doctor",
-      icon: <UserOutlined />,
-      label: <Link href="/dashboard/doctor">Dokter</Link>,
-    },
-    {
-      key: "/dashboard/reservation",
-      icon: <OrderedListOutlined />,
-      label: <Link href= "/dashboard/reservation">Reservasi</Link>
-    },
-    {
-      key: "/dashboard/queue",
-      icon: <BookOutlined />,
-      label: <Link href="/dashboard/queue">Antrian</Link>
-    },
-  ];
-
   const determineSelectedKeys = (pathname: any, items: any) => {
     if (
       pathname.includes("/dashboard/calendar/[doctor_id]") &&
@@ -231,36 +213,94 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       .map((item: any) => item.key);
   };
 
-  const selectedKeys = determineSelectedKeys(pathname, items);
-
-  
-const confirmLogout = () => {
-  Modal.confirm({
-    title: "Konfirmasi Keluar",
-    content: "Apakah Anda yakin ingin keluar?",
-    okText: "Ya",
-    cancelText: "Tidak",
-    onOk: () => {
-      Cookies.remove("token");
-      message.success("Logout successful!");
-      window.location.href = "/dashboard/login";
+  // Definisikan items tanpa properti style
+  const initialItems: MenuItem[] = [
+    {
+      key: "/dashboard",
+      icon: <DashboardOutlined />,
+      label: <Link href="/dashboard">Dashboard</Link>,
     },
-  });
-};
+    {
+      key: "/dashboard/doctor",
+      icon: <UserOutlined />,
+      label: <Link href="/dashboard/doctor">Dokter</Link>,
+    },
+    {
+      key: "/dashboard/reservation",
+      icon: <OrderedListOutlined />,
+      label: <Link href="/dashboard/reservation">Reservasi</Link>,
+    },
+    {
+      key: "/dashboard/queue",
+      icon: <BookOutlined />,
+      label: <Link href="/dashboard/queue">Antrian</Link>,
+    },
+  ];
 
-const showApiKey = (apiKey: string) => {
-  Modal.info({
-    title: "API Key",
-    content: (
-      <Space direction="vertical" style={{ width: "100%" }}>
-        <Paragraph copyable={{ text: apiKey }} style={{ fontSize: "16px" }}>
-          {apiKey}
-        </Paragraph>
-      </Space>
-    ),
-    width: 600,
-  });
-};
+  // Hitung selectedKeys setelah items didefinisikan
+  const selectedKeys = determineSelectedKeys(pathname, initialItems);
+
+  // Tambahkan properti style ke dalam items
+  const items = initialItems.map((item: any) => ({
+    ...item,
+    style: { color: selectedKeys.includes(item.key) ? "black" : "white" },
+  }));
+  const confirmLogout = () => {
+    Modal.confirm({
+      title: "Konfirmasi Keluar",
+      content: "Apakah Anda yakin ingin keluar?",
+      okText: "Ya",
+      cancelText: "Tidak",
+      onOk: () => {
+        Cookies.remove("token");
+        message.success("Logout successful!");
+        window.location.href = "/dashboard/login";
+      },
+    });
+  };
+
+  const showApiKey = (apiKey: string) => {
+    Modal.info({
+      title: "API Key",
+      content: (
+        <Space direction="vertical" style={{ width: "100%" }}>
+          <Paragraph copyable={{ text: apiKey }} style={{ fontSize: "16px" }}>
+            {apiKey}
+          </Paragraph>
+        </Space>
+      ),
+      width: 600,
+    });
+  };
+
+  const showDocumentation = () => {
+    setSelectedContent("dokumentasi");
+  };
+
+  const userMenu = (
+    <Menu
+      items={[
+        {
+          key: "apiKey",
+          label: "API Key",
+          icon: <KeyOutlined />,
+          onClick: () => showApiKey(apiKey),
+        },
+        {
+          key: "dokumentasi",
+          label: "Dokumentasi",
+          icon: <FileMarkdownTwoTone />,
+          onClick: () => showDocumentation(),
+        },
+        {
+          key: "logout",
+          label: "Keluar",
+          icon: <LogoutOutlined />,
+          onClick: confirmLogout,
+        },
+      ]}
+    />
+  );
 
 const showSubscription = () => {
   router.push(`/dashboard/subscription`);
@@ -302,6 +342,7 @@ const userMenu = (
 );
 
 
+
   return (
     <Layout hasSider style={{ minHeight: "100vh" }}>
       <Sider
@@ -317,20 +358,21 @@ const userMenu = (
           left: 0,
           zIndex: 999,
           backgroundColor: "#007E85",
+          color: "black",
           boxShadow: "8px 0 10px -5px rgba(0, 0, 0, 0.2)",
         }}
       >
         <div
           className="logo"
-          style={{ margin: "35px 10px", textAlign: "center" }}
+          style={{ margin: "35px 10px", textAlign: "center", color: "white" }}
         >
           {collapsed ? (
             <span>
-              <BankOutlined />
+              <img src="/image/appointMed2.png" alt="" />
             </span>
           ) : (
             <Image
-              src="/logo.png"
+              src="/image/appointMed.png"
               alt="Company Logo"
               width={200}
               height={200}
@@ -338,9 +380,11 @@ const userMenu = (
           )}
         </div>
         <Menu
-          style={{ backgroundColor: "#007E85" }}
-          mode="inline"
+          style={{
+            backgroundColor: "transparent",
+          }}
           items={items}
+          mode="inline"
           selectedKeys={selectedKeys}
         />
       </Sider>
@@ -390,7 +434,7 @@ const userMenu = (
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    color: "white",
+                    color: "black",
                   }}
                 >
                   <Flex
@@ -403,7 +447,7 @@ const userMenu = (
                   >
                     <Avatar icon={<UserOutlined />} style={{}} />
                     <div style={{ color: "black", textAlign: "right" }}>
-                      <div>{merchantName}</div>
+                      <div style={{ color: "black" }}>{merchantName}</div>
                       <div style={{ fontSize: "smaller" }}>Admin</div>
                     </div>
                   </Flex>
@@ -446,7 +490,7 @@ const userMenu = (
             marginTop: "50px",
           }}
         >
-          RentalinAja ©{new Date().getFullYear()} AppointMed
+          AppointMed ©{new Date().getFullYear()}
         </Footer>
       </Layout>
       <Modal

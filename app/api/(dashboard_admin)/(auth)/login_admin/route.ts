@@ -15,10 +15,23 @@ export async function POST(req: Request) {
       );
     }
 
+    const merchantPendingPayment =
+      await prisma.merchantPendingPayment.findFirst({
+        where: {
+          merchant_email: email,
+        },
+      });
+
     const merchant = await prisma.merchant.findUnique({
       where: {
-        email,
+        merchant_email: email,
         status_subscriber: "Aktif",
+      },
+      select: {
+        merchant_id: true,
+        merchant_email: true,
+        password: true,
+        api_key: true,
       },
     });
 
@@ -34,7 +47,9 @@ export async function POST(req: Request) {
     const token = jwt.sign(
       {
         merchantId: merchant.merchant_id,
-        email: merchant.email,
+
+        merchant_name: merchantPendingPayment?.merchant_name,
+        email: merchant.merchant_email,
         merchant_company: merchant.merchant_company,
         merchant_name: merchant.merchant_name,
         api_key: merchant.api_key,

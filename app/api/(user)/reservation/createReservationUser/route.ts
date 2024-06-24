@@ -87,7 +87,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-
     const createdReservation = await prisma.reservation.create({
       data: {
         schedules_id,
@@ -99,6 +98,7 @@ export async function POST(req: NextRequest) {
         patient_address,
         patient_phone,
         merchant_id: merchant?.merchant_id,
+        patient_address,
       },
       include: {
         Schedule: {
@@ -108,6 +108,7 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+
 
     await prisma.merchant.update({
       where: { merchant_id: merchant!.merchant_id },

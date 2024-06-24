@@ -22,6 +22,8 @@ export const useCompanyName = () => {
   useEffect(() => {
     if (token) {
       setCompanyName(getCompanyName(token));
+    } else {
+      router.push("/dashboard/login");
     }
   }, [token]);
 

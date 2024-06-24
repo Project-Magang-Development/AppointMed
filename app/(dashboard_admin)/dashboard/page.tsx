@@ -3,7 +3,19 @@
 import React, { useState, useEffect } from "react";
 import useSWR, { mutate, SWRConfig } from "swr";
 import Cookies from "js-cookie";
-import { Row, Col, Card, Statistic, Alert, Typography, Flex, Modal, Spin, Avatar, Table } from "antd";
+import {
+  Row,
+  Col,
+  Card,
+  Statistic,
+  Alert,
+  Typography,
+  Flex,
+  Modal,
+  Spin,
+  Avatar,
+  Table,
+} from "antd";
 import { ClockCircleOutlined, UserOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -22,7 +34,7 @@ interface EventDetails {
   patient_name: string;
   doctor_name: string;
   patient_phone: string;
-  patient_gender: string
+  patient_gender: string;
   time: string;
 }
 
@@ -160,55 +172,105 @@ export default function AdminDashboard() {
   if (countError || showQueueError)
     return <Alert message="Error loading data!" type="error" />;
 
+
 if(countData == null || showQueue == null) return <DashboardSkeleton/>
+
 
   const stats = [
     {
-      title: "TOTAL PASIEN",
+      title: "Total Pasien",
       value: countData,
-      icon: <UserOutlined />,
+      icon: <img src="/icons/pasien.svg" alt="" />,
     },
     {
-      title: "WAKTU HARI INI",
+      title: "Waktu Hari ini",
       value: currentTime.toLocaleTimeString("en-GB", { hourCycle: "h23" }),
-      icon: <ClockCircleOutlined />,
+      icon: <img src="/icons/waktu.svg" alt="" />,
     },
   ];
 
   return (
-    <SWRConfig>
-      <div>
-        <Row gutter={16} style={{ marginBottom: 20 }}>
+  <SWRConfig>
+    <div>
+      <Flex justify="space-between">
+        <Flex gap={16} style={{ marginBottom: 20 }}>
           {stats.map((item, index) => (
-            <Col span={6} key={index}>
-              <Card
-                bordered={false}
-                bodyStyle={{
-                  padding: "24px",
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "100%",
-                }}
-                style={{
-                  backgroundColor: "white",
-                  borderRadius: "10px",
-                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-                }}
-              >
-                <div
+            <Flex
+              gap={20}
+              style={{
+                padding: "20px",
+                paddingRight: "80px",
+                height: "100%",
+                backgroundColor: "white",
+                borderRadius: "10px",
+                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                fontFamily: "Lato",
+              }}
+              key={index}
+            >
+              <Flex gap={20}>
+                <Flex
+                  justify="space-between"
                   style={{
                     width: "100%",
-                    display: "flex",
-                    justifyContent: "space-between",
                   }}
                 >
-                  <h3 style={{ margin: 0, fontWeight: "bold", color: "gray" }}>
-                    {item.title}
-                  </h3>
                   {React.cloneElement(item.icon, {
                     style: { fontSize: "24px", color: "#8260FE" },
                   })}
-                </div>
+                </Flex>
+              </Flex>
+              <Flex vertical>
+                <h3 style={{ margin: 0, fontWeight: "bold" }}>{item.title}</h3>
+                <Statistic
+                  value={item.value}
+                  valueStyle={{
+                    color: "#AEB9E1",
+                    fontSize: "20px",
+                    fontFamily: "Lato",
+                  }}
+                />
+              </Flex>
+            </Flex>
+          ))}
+        </Flex>
+      </Flex>
+      <Flex justify="space-between">
+        <Col flex="2">
+          <Card bordered={false} style={{ marginRight: 8 }}>
+            {renderModal()}
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              locales={allLocales}
+              locale="id"
+              events={
+                showQueue
+                  ? showQueue.map((queue: any) => ({
+                      title: `${queue.Reservation.patient_name}`,
+                      start: dayjs
+                        .utc(queue.Reservation.date_time)
+                        .format("YYYY-MM-DD"),
+                      extendedProps: {
+                        patient_name: queue.Reservation.patient_name,
+                        doctor_name: queue.Reservation.Schedule.doctors.name,
+                        patient_phone: queue.Reservation.patient_phone,
+                        patient_gender: queue.Reservation.patient_gender,
+                        time: dayjs
+                          .utc(queue.Reservation.date_time)
+                          .format("HH:mm"),
+                      },
+                    }))
+                  : []
+              }
+              eventClick={handleEventClick}
+            />
+          </Card>
+        </Col>
+        <Col flex="1">
+          <Card title="Antrian Pasien" style={{ marginLeft: 8 }}>
+            {showQueue && showQueue.length > 0 ? (
+              showQueue.map((queue: any, index: any) => (
                 <div
                   style={{
                     alignSelf: "flex-start",

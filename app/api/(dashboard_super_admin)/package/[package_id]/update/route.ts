@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function PUT(req: Request, {params}: {params: {package_id: string}}) {
+export async function PUT(
+  req: Request,
+  { params }: { params: { package_id: string } }
+) {
   const package_id = params.package_id;
 
   try {
@@ -20,6 +23,7 @@ export async function PUT(req: Request, {params}: {params: {package_id: string}}
     const {
       package_name,
       package_description,
+      package_tag,
       package_feature,
       package_price,
       count_order,
@@ -76,6 +80,7 @@ export async function PUT(req: Request, {params}: {params: {package_id: string}}
           package_name,
           package_price,
           package_description,
+          package_tag,
           package_feature,
           count_order: count_order,
           count_doctor: count_doctor,

@@ -51,6 +51,11 @@ interface TimeSlot {
   reservationNo: string;
 }
 
+
+export default function Home() {
+  const [apiKey, setApiKey] = useState(
+    "fd86d620febfa7ec759d3d640aaae4a8508e746862f6323ac293308878c98423"
+  );
 type PageProps = {
   apiKey: string;
 }
@@ -220,6 +225,54 @@ const Schedules: React.FC<PageProps> = ({  }) => {
           layout="vertical"
           onFinish={handleOk}
         >
+          <Form.Item label="Choose a specialist:" name="specialist">
+            <Select
+              showSearch
+              value={selectedSpecialist}
+              onChange={setSelectedSpecialist}
+              placeholder="Select a Specialist"
+              optionFilterProp="children"
+            >
+              {doctors && doctors.length > 0 ? (
+                Array.from(
+                  new Set(doctors.map((doctor) => doctor.specialist))
+                ).map((specialist) => (
+                  <Option key={specialist} value={specialist}>
+                    {specialist}
+                  </Option>
+                ))
+              ) : (
+                <Option value="" disabled>
+                  No Specialists Available
+                </Option>
+              )}
+            </Select>
+          </Form.Item>
+          <Form.Item label="Select Doctor:" name="doctor">
+            <Select
+              showSearch
+              value={selectedDoctorName}
+              onChange={(value) => {
+                const selectedDoc = filteredDoctors.find(
+                  (doctor) => doctor.name === value
+                );
+                if (selectedDoc) {
+                  setSelectedDoctorId(selectedDoc.doctor_id);
+                  setSelectedDoctorName(selectedDoc.name);
+                } else {
+                  setSelectedDoctorId("");
+                  setSelectedDoctorName("");
+                }
+              }}
+              placeholder="Select a Doctor"
+              optionFilterProp="children"
+              disabled={!filteredDoctors.length}
+            >
+              {filteredDoctors.map((doctor) => (
+                <Option
+                  key={doctor.doctor_id}
+                  value={doctor.name}
+                  label={doctor.name}
           <Row
             style={{
               display: "flex",
@@ -322,15 +375,41 @@ const Schedules: React.FC<PageProps> = ({  }) => {
                   disabled={!times.length}
                   style={{ width: "100%" }}
                 >
-                  {times.map((slot, index) => (
-                    <Option key={index} value={slot.time}>
-                      {slot.time}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+                  <Tooltip
+                    title={`Nomor SIP: ${doctor.no_sip}, Pengalaman: ${doctor.experiences}`}
+                  >
+                    <Text strong>{doctor.name}</Text>
+                  </Tooltip>
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item label="Select Date:" name="date">
+            <DatePicker
+              format="YYYY-MM-DD"
+              value={selectedDate}
+              onChange={setSelectedDate}
+              disabled={!selectedDoctorId}
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+          <Form.Item label="Select Time:" name="time">
+            <Select
+              showSearch
+              value={selectedTime}
+              onChange={handleTimeChange}
+              placeholder="Select a Time"
+              optionFilterProp="children"
+              disabled={!times.length}
+              style={{ width: "100%" }}
+            >
+              {times.map((slot, index) => (
+                <Option key={index} value={slot.time}>
+                  {slot.time}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
           <FormItem>
             <Button
               style={{

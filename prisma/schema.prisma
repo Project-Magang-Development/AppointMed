@@ -14,90 +14,123 @@ model SuperAdmin {
 }
 
 model Merchant {
-  merchant_id       String   @id @default(uuid())
-  merchant_name     String
-  merchant_company  String
-  domain            String
-  status_subscriber String   @default("Aktif")
-  start_date        DateTime?  
-  end_date          DateTime?
-  email             String   @unique
-  password          String
-  api_key                   String   @unique
-  used_storage_doctor      Int     @default(0)
-  used_storage_order        Int     @default(0)
-  doctors           Doctor[]
-  schedules         Schedule[]
-  reservation        Reservation[]
-  // merchantPayments  MerchantPayment[]
-  payment           Payment[]
-  queue          Queue[]
-  package_id        String           
-  package           Package  @relation(fields: [package_id], references: [package_id])
+  merchant_id            String                 @id @default(uuid())
+  merchant_name          String
+  merchant_company       String
+  status_subscriber      String                 @default("Aktif")
+  start_date             DateTime?
+  end_date               DateTime?
+  merchant_email         String                 @unique
+  password               String
+  api_key                String                 @unique
+  used_storage_vehicle   Int                    @default(0)
+  used_storage_order     Int                    @default(0)
+  schedules              Schedule[]
+  package_id             String
+  package                Package                @relation(fields: [package_id], references: [package_id])
+  Payment                Payment[]
+  merchant_payment_id    String                 @unique
+  MerchantPayment        MerchantPayment        @relation(fields: [merchant_payment_id], references: [merchant_payment_id])
+  pending_id             String                 @unique
+  MerchantPendingPayment MerchantPendingPayment @relation(fields: [pending_id], references: [pending_id])
+  available_balance      Int
+  reservation            Reservation[]
+  queue                  Queue[]
+  doctors                Doctor[]
 }
 
+model MerchantPayment {
+  merchant_payment_id String @id @default(uuid())
+  pending_id          String @unique
+  invoice_id          String @unique
+  status              String
 
+  MerchantPendingPayment MerchantPendingPayment @relation(fields: [pending_id], references: [pending_id])
+  Merchant               Merchant?
+}
+
+model MerchantPendingPayment {
+  pending_id        String            @id @default(uuid())
+  invoice_id        String            @unique
+  package_name      String
+  package_id        String
+  amount            Int
+  merchant_name     String
+  merchant_email    String
+  password          String
+  merchant_whatsapp String
+  klinik_name       String
+  klinik_type       String
+  merchant_city     String
+  merchant_address  String
+  status            String            @default("Pending")
+  payment_date      DateTime?
+  package           Package           @relation(fields: [package_id], references: [package_id])
+  MerchantPayment   MerchantPayment[]
+  Merchant          Merchant?
+}
 
 model Package {
   package_id             String                   @id @default(uuid())
   package_name           String
   package_description    String
+  package_tag            String?
   package_price          Int
   package_feature        String
   count_doctor           Int?
   count_order            Int?
   duration               Int
   merchants              Merchant[]
+  MerchantPendingPayment MerchantPendingPayment[]
 }
 
-
 model Doctor {
-  doctor_id      String    @id @default(uuid())
-  merchant_id    String
-  name           String
-  specialist     String
-  price          Int       @default(0)
-  practiceDays   String
-  imageUrl       String    @db.LongText
-  experiences    String    @default("")
-  no_phone       String    @default("")
-  email          String    @default("")
-  no_sip         String    @default("")
+  doctor_id    String @id @default(uuid())
+  merchant_id  String
+  name         String
+  specialist   String
+  price        Int    @default(0)
+  practiceDays String
+  imageUrl     String @db.LongText
+  experiences  String @default("")
+  no_phone     String @default("")
+  email        String @default("")
+  no_sip       String @default("")
 
-  Merchant       Merchant  @relation(fields: [merchant_id], references: [merchant_id])
-  schedules      Schedule[]
+  Merchant  Merchant   @relation(fields: [merchant_id], references: [merchant_id])
+  schedules Schedule[]
 }
 
 model Schedule {
-  schedules_id   String    @id @default(uuid())
-  merchant_id    String
-  doctor_id      String
-  day            String
-  start_date     DateTime
-  end_date       DateTime
-  Merchant       Merchant  @relation(fields: [merchant_id], references: [merchant_id])
-  doctor         Doctor    @relation(fields: [doctor_id], references: [doctor_id])
-  reservation    Reservation[]
+  schedules_id String        @id @default(uuid())
+  merchant_id  String
+  doctor_id    String
+  day          String
+  start_date   DateTime
+  end_date     DateTime
+  Merchant     Merchant      @relation(fields: [merchant_id], references: [merchant_id])
+  doctor       Doctor        @relation(fields: [doctor_id], references: [doctor_id])
+  reservation  Reservation[]
 }
 
 model Reservation {
-  reservation_id String    @id @default(uuid())
-  schedules_id   String
-  merchant_id    String
-  no_reservation String    @default("")
-  date_time      DateTime
-  patient_name   String
-  patient_phone  String
-  patient_gender String
-  patient_email  String
+  reservation_id  String   @id @default(uuid())
+  schedules_id    String
+  merchant_id     String
+  no_reservation  String   @default("")
+  date_time       DateTime
+  patient_name    String
+  patient_phone   String
+  patient_gender  String
+  patient_email   String
   patient_address String
-  status         String    @default("Pending")
-  created_at     DateTime  @default(now())
+  status          String   @default("Pending")
+  created_at      DateTime @default(now())
 
-  Merchant       Merchant  @relation(fields: [merchant_id], references: [merchant_id])
-  Schedule       Schedule  @relation(fields: [schedules_id], references: [schedules_id])
-  queue          Queue?
-  payment        Payment[]
+  Merchant Merchant  @relation(fields: [merchant_id], references: [merchant_id])
+  Schedule Schedule  @relation(fields: [schedules_id], references: [schedules_id])
+  queue    Queue?
+  payment  Payment[]
 }
 
 model Payment {
@@ -110,8 +143,8 @@ model Payment {
   status         String    @default("Pending")
   payment_date   DateTime?
 
-  Reservation    Reservation @relation(fields: [reservation_id], references: [reservation_id])
-  Merchant       Merchant    @relation(fields: [merchant_id], references: [merchant_id])
+  Reservation Reservation @relation(fields: [reservation_id], references: [reservation_id])
+  Merchant    Merchant    @relation(fields: [merchant_id], references: [merchant_id])
 }
 
 model Queue {
