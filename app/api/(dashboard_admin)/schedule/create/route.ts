@@ -24,18 +24,14 @@ export async function POST(req: NextRequest) {
         merchantId: string;
       };
     } catch (error) {
-      return new NextResponse(
-        JSON.stringify({ error: "Invalid token" }),
-        {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return new NextResponse(JSON.stringify({ error: "Invalid token" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     const body = await req.json();
     const { doctor_id, day, start, end } = body;
-
 
     if (!doctor_id || !day || !start || !end) {
       return new NextResponse(

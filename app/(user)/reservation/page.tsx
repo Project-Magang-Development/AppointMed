@@ -20,6 +20,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useSearchParams } from "next/navigation"; // Import useSearchParams
 import useSWR from "swr";
+import axios from "axios";
 
 dayjs.extend(utc);
 
@@ -50,10 +51,12 @@ export default function FormPage() {
     `/api/schedule/getDetailSchedule/${schedules_id}`,
     fetcher
   );
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [reservationData, setReservationData] = useState<any>(null);
   const [showInvoice, setShowInvoice] = useState(false);
   const [loading, setLoading] = useState(false);
+  const tax = 1500;
 
   const columns = [
     {
@@ -68,8 +71,78 @@ export default function FormPage() {
     },
   ];
 
-  const handleOk = async (values: any) => {
+  // TODO: Buat xendit payment
+  const createInvoice = async (
+    invoiceData: any,
+    externalId: string
+  ): Promise<any> => {
+    try {
+      const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY;
+
+      if (!secretKey) {
+        throw Error("tidak ada API Key xendit");
+      }
+
+      const endpoint = "https://api.xendit.co/v2/invoices";
+      const basicAuthHeader = `Basic ${btoa(secretKey + ":")}`;
+
+      const payload = {
+        external_id: externalId,
+        amount: detailSchedule.detailSchedule.doctor.price + tax,
+        description: "Clinic reservation",
+        currency: "IDR",
+        customer: {
+          given_names: reservationData.customer_name,
+          mobile_number: reservationData.customer_phone,
+          email: reservationData.patient_email,
+        },
+        customer_notification_preference: {
+          invoice_created: ["whatsapp"],
+          invoice_reminder: ["whatsapp"],
+          invoice_paid: ["whatsapp"],
+        },
+        success_redirect_url: "http://localhost:3000/",
+        items: [
+          {
+            name: detailSchedule.detailSchedule.doctor.name,
+            quantity: 1,
+            price: detailSchedule.detailSchedule.doctor.price,
+          },
+        ],
+        fees: [
+          {
+            type: "ADMIN",
+            value: tax,
+          },
+        ],
+      };
+
+      const response = await axios.post(endpoint, payload, {
+        headers: {
+          Authorization: basicAuthHeader,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 200) {
+        const { invoice_url, id } = response.data;
+        console.log(response.data);
+
+        return { id_invoice: id, invoice_url, external_id: externalId };
+      } else {
+        console.error("Gagal membuat invoice");
+        console.log(response.data);
+        return { id_invoice: null, external_id: null };
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan:", error);
+      return { id_invoice: null, external_id: null };
+    }
+  };
+
+  const onFinish = async (values: any) => {
     setLoading(true);
+    const externalId = "INV-" + Math.random().toString(36).substring(2, 9);
     const payloadData = {
       schedules_id: schedules_id,
       apiKey,
@@ -80,6 +153,8 @@ export default function FormPage() {
       patient_email: values.patient_email,
       patient_address: values.patient_address,
       no_reservation: no_reservation,
+      external_id: externalId,
+      total_amount: detailSchedule.detailSchedule.doctor.price,
     };
 
     try {
@@ -111,17 +186,28 @@ export default function FormPage() {
     setIsModalVisible(false);
   };
 
+  const handleOk = async () => {
+    try {
+      const externalId =
+        reservationData.external_id ||
+        "INV-" + Math.random().toString(36).substring(2, 9);
+      const result = await createInvoice(reservationData, externalId);
+      console.log(result);
+
+      if (result && result.invoice_url) {
+        window.location.href = result.invoice_url;
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsModalVisible(false);
+    }
+  };
+
   const invoiceData = reservationData
     ? [
         {
           key: "doctor_name",
-          field: "Doctor Name",
-          value: reservationData.data.Schedule.doctor.name,
-        },
-        {
-          key: "patient_gender",
-          field: "Patient Gender",
-          value: reservationData.data.patient_gender,
           doctor: detailSchedule.detailSchedule.doctor.name,
           date: dayjs(reservationData.Schedule.date).format("D MMM YYYY"),
           cost: `Rp ${detailSchedule.detailSchedule.doctor.price.toLocaleString()}`,
@@ -213,42 +299,55 @@ export default function FormPage() {
                 <strong>Reservation {reservationData.no_reservation}</strong>
               </p>
             </Flex>
-            <table style={{ width: "300px" }}>
-              <tr>
-                <td>Name</td>
-                <td>
-                  {" "}
-                  <p style={{ fontWeight: "bold" }}>{reservationData.patient_name}</p>
-                </td>
-              </tr>
-              <tr>
-                <td>Gender</td>
-                <td>
-                  {" "}
-                  <p style={{ fontWeight: "bold" }}>{reservationData.patient_gender}</p>
-                </td>
-              </tr>
-              <tr>
-                <td>Phone</td>
-                <td>
-                  {" "}
-                  <p style={{ fontWeight: "bold" }}> {reservationData.patient_phone}</p>
-                </td>
-              </tr>
-              <tr>
-                <td>Email</td>
-                <td>
-                  {" "}
-                  <p style={{ fontWeight: "bold" }}>{reservationData.patient_email}</p>
-                </td>
-              </tr>
-              <tr>
-                <td>Address</td>
-                <td>
-                  {" "}
-                  <p style={{ fontWeight: "bold" }}>{reservationData.patient_address}</p>
-                </td>
-              </tr>
+            <table style={{ width: "100%" }}>
+              <tbody>
+                <tr style={{ width: "10%" }}>
+                  <td style={{ width: "10%" }}>Name</td>
+                  <td>
+                    {" "}
+                    <p style={{ fontWeight: "bold" }}>
+                      {reservationData.patient_name}
+                    </p>
+                  </td>
+                </tr>
+                <tr style={{ width: "10%" }}>
+                  <td style={{ width: "10%" }}>Gender</td>
+                  <td>
+                    {" "}
+                    <p style={{ fontWeight: "bold" }}>
+                      {reservationData.patient_gender}
+                    </p>
+                  </td>
+                </tr>
+                <tr style={{ width: "10%" }}>
+                  <td style={{ width: "10%" }}>Phone</td>
+                  <td>
+                    {" "}
+                    <p style={{ fontWeight: "bold" }}>
+                      {" "}
+                      {reservationData.patient_phone}
+                    </p>
+                  </td>
+                </tr>
+                <tr style={{ width: "10%" }}>
+                  <td style={{ width: "10%" }}>Email</td>
+                  <td>
+                    {" "}
+                    <p style={{ fontWeight: "bold" }}>
+                      {reservationData.patient_email}
+                    </p>
+                  </td>
+                </tr>
+                <tr style={{ width: "10%" }}>
+                  <td style={{ width: "10%" }}>Address</td>
+                  <td>
+                    {" "}
+                    <p style={{ fontWeight: "bold" }}>
+                      {reservationData.patient_address}
+                    </p>
+                  </td>
+                </tr>
+              </tbody>
             </table>
 
             {/* <Flex
@@ -379,12 +478,7 @@ export default function FormPage() {
                 <p>
                   <strong>TAX</strong>
                 </p>
-                <p>
-                  Rp{" "}
-                  {(
-                    detailSchedule.detailSchedule.doctor.price * 0.03
-                  ).toLocaleString()}
-                </p>
+                <p>Rp {tax.toLocaleString()}</p>
               </div>
               <div
                 style={{
@@ -402,12 +496,13 @@ export default function FormPage() {
                 <p style={{ fontWeight: "bold", color: "white" }}>
                   Rp{" "}
                   {(
-                    reservationData.Schedule.doctor.price * 1.03
+                    reservationData.Schedule.doctor.price + tax
                   ).toLocaleString()}
                 </p>
               </div>
             </div>
             <Button
+              onClick={handleOk}
               type="primary"
               block
               style={{
@@ -439,7 +534,7 @@ export default function FormPage() {
               <Title level={3} style={{ textAlign: "center" }}>
                 Complete Your Details
               </Title>
-              <Form onFinish={handleOk} layout="vertical">
+              <Form onFinish={onFinish} layout="vertical">
                 <Form.Item
                   label="Full Name"
                   name="patient_name"

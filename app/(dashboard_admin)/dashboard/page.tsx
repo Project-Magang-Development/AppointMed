@@ -57,10 +57,11 @@ const fetcher = (url: string) =>
     });
 
 export default function AdminDashboard() {
-  const { data: countData, error: countError, isLoading: loading } = useSWR(
-    "/api/reservation/countPatient",
-    fetcher
-  );
+  const {
+    data: countData,
+    error: countError,
+    isLoading: loading,
+  } = useSWR("/api/reservation/countPatient", fetcher);
   const {
     data: showQueue,
     error: showQueueError,
@@ -71,7 +72,6 @@ export default function AdminDashboard() {
   const [selectedEvent, setSelectedEvent] = useState<EventDetails | null>(null);
 
   const [currentTime, setCurrentTime] = useState(new Date());
-
 
   const handleEventClick = (clickInfo: any) => {
     setSelectedEvent({
@@ -172,9 +172,7 @@ export default function AdminDashboard() {
   if (countError || showQueueError)
     return <Alert message="Error loading data!" type="error" />;
 
-
-if(countData == null || showQueue == null) return <DashboardSkeleton/>
-
+  if (countData == null || showQueue == null) return <DashboardSkeleton />;
 
   const stats = [
     {
@@ -190,107 +188,54 @@ if(countData == null || showQueue == null) return <DashboardSkeleton/>
   ];
 
   return (
-  <SWRConfig>
-    <div>
-      <Flex justify="space-between">
-        <Flex gap={16} style={{ marginBottom: 20 }}>
-          {stats.map((item, index) => (
-            <Flex
-              gap={20}
-              style={{
-                padding: "20px",
-                paddingRight: "80px",
-                height: "100%",
-                backgroundColor: "white",
-                borderRadius: "10px",
-                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-                fontFamily: "Lato",
-              }}
-              key={index}
-            >
-              <Flex gap={20}>
-                <Flex
-                  justify="space-between"
-                  style={{
-                    width: "100%",
-                  }}
-                >
-                  {React.cloneElement(item.icon, {
-                    style: { fontSize: "24px", color: "#8260FE" },
-                  })}
+    <SWRConfig>
+      <div>
+        <Flex justify="space-between">
+          <Flex gap={16} style={{ marginBottom: 20 }}>
+            {stats.map((item, index) => (
+              <Flex
+                gap={20}
+                style={{
+                  padding: "20px",
+                  paddingRight: "80px",
+                  height: "100%",
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                  fontFamily: "Lato",
+                }}
+                key={index}
+              >
+                <Flex gap={20}>
+                  <Flex
+                    justify="space-between"
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+                    {React.cloneElement(item.icon, {
+                      style: { fontSize: "24px", color: "#8260FE" },
+                    })}
+                  </Flex>
                 </Flex>
-              </Flex>
-              <Flex vertical>
-                <h3 style={{ margin: 0, fontWeight: "bold" }}>{item.title}</h3>
-                <Statistic
-                  value={item.value}
-                  valueStyle={{
-                    color: "#AEB9E1",
-                    fontSize: "20px",
-                    fontFamily: "Lato",
-                  }}
-                />
-              </Flex>
-            </Flex>
-          ))}
-        </Flex>
-      </Flex>
-      <Flex justify="space-between">
-        <Col flex="2">
-          <Card bordered={false} style={{ marginRight: 8 }}>
-            {renderModal()}
-            <FullCalendar
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              initialView="dayGridMonth"
-              locales={allLocales}
-              locale="id"
-              events={
-                showQueue
-                  ? showQueue.map((queue: any) => ({
-                      title: `${queue.Reservation.patient_name}`,
-                      start: dayjs
-                        .utc(queue.Reservation.date_time)
-                        .format("YYYY-MM-DD"),
-                      extendedProps: {
-                        patient_name: queue.Reservation.patient_name,
-                        doctor_name: queue.Reservation.Schedule.doctors.name,
-                        patient_phone: queue.Reservation.patient_phone,
-                        patient_gender: queue.Reservation.patient_gender,
-                        time: dayjs
-                          .utc(queue.Reservation.date_time)
-                          .format("HH:mm"),
-                      },
-                    }))
-                  : []
-              }
-              eventClick={handleEventClick}
-            />
-          </Card>
-        </Col>
-        <Col flex="1">
-          <Card title="Antrian Pasien" style={{ marginLeft: 8 }}>
-            {showQueue && showQueue.length > 0 ? (
-              showQueue.map((queue: any, index: any) => (
-                <div
-                  style={{
-                    alignSelf: "flex-start",
-                    margin: "10px 0 0",
-                    width: "100%",
-                  }}
-                >
+                <Flex vertical>
+                  <h3 style={{ margin: 0, fontWeight: "bold" }}>
+                    {item.title}
+                  </h3>
                   <Statistic
                     value={item.value}
                     valueStyle={{
-                      color: "black",
-                      fontSize: "24px",
-                      fontWeight: "bold",
+                      color: "#AEB9E1",
+                      fontSize: "20px",
+                      fontFamily: "Lato",
                     }}
                   />
-                </div>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+                </Flex>
+              </Flex>
+            ))}
+          </Flex>
+        </Flex>
+
         <Flex justify="space-between">
           <Col flex="2">
             <Card bordered={false} style={{ marginRight: 8 }}>

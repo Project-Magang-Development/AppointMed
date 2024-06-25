@@ -111,12 +111,12 @@ const DetailModal = ({
         },
 
         {
-          key: "6",
+          key: "7",
           field: "No. Telepon",
           detail: doctor.no_phone,
         },
         {
-          key: "7",
+          key: "8",
           field: "No. SIP",
           detail: doctor.no_sip,
         },

@@ -58,8 +58,6 @@ const RegisterDashboard: React.FC = () => {
 
   useEffect(() => {
     //sesuaikan dengan url package yang dipilih
-
-  const onFinish = async (values: any) => {
     const package_id = searchParams.get("package");
     setPackageId(package_id);
   }, [searchParams]);

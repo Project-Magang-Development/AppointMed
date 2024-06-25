@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateExpiredStatus, updatePaymentStatus } from "@/lib/updatePayment";
-// import { updateOrderFinish } from "@/lib/updateOrderPayment";
-// import { updatePaymentMethodByExternalId } from "@/lib/updateCustomerPayments";
+import { updateOrderFinish } from "@/lib/updateOrderPayment";
 export async function POST(req: NextRequest, res: NextResponse) {
   try {
     const body = await req.json();
@@ -41,31 +40,20 @@ export async function POST(req: NextRequest, res: NextResponse) {
       }
 
       // Update order finish status
-      // const orderFinishResult = await updateOrderFinish(externalId, "PAID");
-      // if (orderFinishResult) {
-      //   console.log(
-      //     `Order with external_id ${externalId} has been marked as PAID`
-      //   );
-      // } else {
-      //   console.log(
-      //     `Order with external_id ${externalId} not found for updateOrderFinish.`
-      //   );
-      // }
-
-      // Update payment method
-      // const paymentMethodResult = await updatePaymentMethodByExternalId(
-      //   externalId,
-      //   paymentMethod
-      // );
-      // if (paymentMethodResult) {
-      //   console.log(
-      //     `Payment method for external_id ${externalId} updated to ${paymentMethod}`
-      //   );
-      // } else {
-      //   console.log(
-      //     `Payment with external_id ${externalId} not found for updatePaymentMethodByExternalId.`
-      //   );
-      // }
+      const orderFinishResult = await updateOrderFinish(
+        externalId,
+        "PAID",
+        paymentMethod
+      );
+      if (orderFinishResult) {
+        console.log(
+          `Order with external_id ${externalId} has been marked as PAID`
+        );
+      } else {
+        console.log(
+          `Order with external_id ${externalId} not found for updateOrderFinish.`
+        );
+      }
 
       return NextResponse.json({ success: true, body }, { status: 200 });
     } else if (status === "EXPIRED") {

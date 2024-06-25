@@ -37,6 +37,24 @@ model Merchant {
   reservation            Reservation[]
   queue                  Queue[]
   doctors                Doctor[]
+  Income                 Income[]
+  Expense                Expense[]
+}
+
+model Income {
+  id          String   @id @default(uuid())
+  merchant_id String
+  amount      Int
+  created_at  DateTime @default(now())
+  merchant    Merchant @relation(fields: [merchant_id], references: [merchant_id])
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  merchant_id String
+  amount      Int
+  created_at  DateTime @default(now())
+  merchant    Merchant @relation(fields: [merchant_id], references: [merchant_id])
 }
 
 model MerchantPayment {
@@ -115,6 +133,7 @@ model Schedule {
 
 model Reservation {
   reservation_id  String   @id @default(uuid())
+  external_id     String   @unique
   schedules_id    String
   merchant_id     String
   no_reservation  String   @default("")
@@ -126,6 +145,7 @@ model Reservation {
   patient_address String
   status          String   @default("Pending")
   created_at      DateTime @default(now())
+  total_amount    Int
 
   Merchant Merchant  @relation(fields: [merchant_id], references: [merchant_id])
   Schedule Schedule  @relation(fields: [schedules_id], references: [schedules_id])
