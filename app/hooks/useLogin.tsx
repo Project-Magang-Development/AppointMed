@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { useAuthToken } from "./useRedirectBasedOnToken";
-import { getApiKey, getCompanyName, getEmail, getMerchantId, getName } from "../services/authServices";
+import {
+  getApiKey,
+  getCompanyName,
+  getEmail,
+  getMerchantId,
+  getName,
+} from "../services/authServices";
+import { useRouter } from "next/navigation";
 
 export const useMerchantId = () => {
   const [merchantId, setMerchantId] = useState("");
@@ -16,6 +23,7 @@ export const useMerchantId = () => {
 };
 
 export const useCompanyName = () => {
+  const router = useRouter();
   const [companyName, setCompanyName] = useState("");
   const { token } = useAuthToken();
 

@@ -363,7 +363,7 @@ export default function AdminPackageDashboard() {
           </Form.Item>
           <Form.Item
             name="tag"
-            rules={[{ required: true, message: "Tolong Masukan tag!" }]}
+            rules={[{ required: false, message: "Tolong Masukan tag!" }]}
           >
             <Input placeholder="tag" />
           </Form.Item>

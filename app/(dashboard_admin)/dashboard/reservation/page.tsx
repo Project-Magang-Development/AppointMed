@@ -24,7 +24,7 @@ interface ReservationData {
   patient_gender: string;
   patient_email: string;
   status: string;
-  Schedule?: { doctors: { name: string } }; // Adding optional Schedule property for doctor name
+  Schedule?: { doctor: { name: string } }; // Adding optional Schedule property for doctor name
 }
 
 export default function DashboardReservation() {
@@ -74,7 +74,7 @@ export default function DashboardReservation() {
       title: "Nama Dokter",
       key: "doctor_name",
       render: (text: any, record: any) =>
-        record.Schedule?.doctors?.name || "N/A",
+        record.Schedule?.doctor?.name || "N/A",
     },
     {
       title: "Nama Pasien",
@@ -127,7 +127,11 @@ export default function DashboardReservation() {
       </Flex>
       <Divider />
       {error && <div>Failed to load</div>}
-      {!Array.isArray(data) && !error && <div><TableSkeleton /></div>}
+      {!Array.isArray(data) && !error && (
+        <div>
+          <TableSkeleton />
+        </div>
+      )}
       {Array.isArray(data) && (
         <Table
           dataSource={filteredReservation}

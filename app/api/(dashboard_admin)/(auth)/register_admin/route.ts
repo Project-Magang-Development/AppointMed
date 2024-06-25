@@ -49,6 +49,14 @@ export async function POST(req: Request) {
       where: { merchant_email: email },
     });
 
+    //check email apakah sudah terdaftar
+    if (merchantData) {
+      return NextResponse.json(
+        { error: "Email sudah terdaftar" },
+        { status: 400 }
+      );
+    }
+
     let responseMessage;
 
     // Create a new merchant payment record
@@ -62,7 +70,7 @@ export async function POST(req: Request) {
 
     if (merchantData) {
       merchantData = await prisma.merchant.update({
-        where: { merchant_email: merchantData.merchant_email },
+        where: { merchant_email: email },
         data: {
           pending_id: merchantPendingPayment.pending_id,
           merchant_payment_id: newMerchantPayment.merchant_payment_id,
@@ -77,6 +85,8 @@ export async function POST(req: Request) {
     } else {
       merchantData = await prisma.merchant.create({
         data: {
+          merchant_company: merchantPendingPayment.klinik_name,
+          merchant_name: merchantPendingPayment.merchant_name,
           start_date: startDate,
           end_date: endDate,
           api_key: generateApiKey(),

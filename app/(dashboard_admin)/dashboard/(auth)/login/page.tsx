@@ -46,14 +46,14 @@ export default function LoginDashboard() {
         throw new Error(`Error: ${response.status}`);
       }
 
+      setLoading(false);
       const data = await response.json();
       Cookies.set("token", data.token, { expires: 1 });
       message.success("Login successful!");
-      setLoading(false);
       window.location.href = "/dashboard";
     } catch (error) {
-      message.error("Login failed.");
       setLoading(false);
+      message.error("Login failed.");
     }
   };
 

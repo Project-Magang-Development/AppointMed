@@ -115,17 +115,35 @@ const DoctorSchedule: React.FC<DoctorScheduleProps> = ({ doctor }) => {
           }
 
           const result = await response.json();
-          notification.success({
-            message: `Jadwal ${isUpdate ? "Diperbarui" : "Dibuat"}`,
-            description: `Jadwal pada hari ${day} ${
-              isUpdate ? "telah berhasil diperbarui." : "telah berhasil dibuat."
-            }`,
-          });
-          return result;
+          return { day, isUpdate, success: true };
         }
       );
 
-      await Promise.all(promises);
+      const results = await Promise.all(promises);
+
+      const successDays = results.filter(({ success }) => success);
+      const errorDays = results.filter(({ success }) => !success);
+
+      if (errorDays.length > 0) {
+        const errorMessages = errorDays.map(({ day }) => day).join(", ");
+        throw new Error(`Failed for ${errorMessages}`);
+      }
+
+      if (successDays.length > 0) {
+        const successDaysList = successDays.map(({ day }) => day);
+        const successMessages = `Jadwal pada hari ${successDaysList.join(
+          ", "
+        )} ${
+          successDays.length === 1
+            ? "telah berhasil"
+            : "telah berhasil diperbarui"
+        }`;
+        notification.success({
+          message: "Jadwal Berhasil Diproses",
+          description: successMessages,
+        });
+      }
+
       await mutate(); // Refresh the data after all operations
     } catch (error) {
       console.error("Failed to save schedule:", error);

@@ -25,9 +25,9 @@ const useRedirectBasedOnToken = () => {
     }
 
     if (!token && !adminToken) {
-      router.push("/dashboard/login");
+      // router.push("/dashboard/login")
     } else if (!adminToken) {
-      router.push("/dashboard-admin/login");
+      // router.push("/dashboard-admin/login");
     }
   }, [router, token, adminToken, shouldHideToken, pathname]);
 };

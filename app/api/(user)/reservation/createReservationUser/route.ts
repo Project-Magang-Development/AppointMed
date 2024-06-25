@@ -19,6 +19,8 @@ export async function POST(req: NextRequest) {
       patient_email,
       no_reservation,
       patient_address,
+      external_id,
+      total_amount,
     } = body;
 
     if (
@@ -30,7 +32,9 @@ export async function POST(req: NextRequest) {
       !patient_gender ||
       !patient_email ||
       !no_reservation ||
-      !patient_address
+      !patient_address ||
+      !external_id ||
+      !total_amount
     ) {
       return new NextResponse(
         JSON.stringify({ error: "Missing required fields" }),
@@ -98,7 +102,8 @@ export async function POST(req: NextRequest) {
         patient_address,
         patient_phone,
         merchant_id: merchant?.merchant_id,
-        patient_address,
+        external_id,
+        total_amount,
       },
       include: {
         Schedule: {
@@ -108,7 +113,6 @@ export async function POST(req: NextRequest) {
         },
       },
     });
-
 
     await prisma.merchant.update({
       where: { merchant_id: merchant!.merchant_id },
