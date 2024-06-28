@@ -165,13 +165,18 @@ model Payment {
 
   Reservation Reservation @relation(fields: [reservation_id], references: [reservation_id])
   Merchant    Merchant    @relation(fields: [merchant_id], references: [merchant_id])
+  Queue       Queue?
 }
 
 model Queue {
-  queue_id       String      @id @default(uuid())
+  queue_id       String   @id @default(uuid())
+  payment_id     String   @unique
   merchant_id    String
-  reservation_id String      @unique
+  reservation_id String   @unique
   has_arrived    Boolean?
-  Reservation    Reservation @relation(fields: [reservation_id], references: [reservation_id])
-  Merchant       Merchant    @relation(fields: [merchant_id], references: [merchant_id])
+  created_at     DateTime @default(now())
+
+  Reservation Reservation @relation(fields: [reservation_id], references: [reservation_id])
+  Payment     Payment     @relation(fields: [payment_id], references: [payment_id])
+  Merchant    Merchant    @relation(fields: [merchant_id], references: [merchant_id])
 }

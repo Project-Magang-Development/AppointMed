@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button, Form, Input, Layout, Typography, message } from "antd";
+import { Button, Form, Input, Layout, Typography, message, notification } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -33,7 +33,9 @@ export default function LoginDashboardSuperAdmin() {
 
       const data = await response.json();
       Cookies.set("tokenAdmin", data.token);
-      message.success("Login successful!");
+      notification.success({
+        message: "Login Berhasil!",
+      });
       setLoading(false);
       router.push("/dashboard-admin");
     } catch (error) {

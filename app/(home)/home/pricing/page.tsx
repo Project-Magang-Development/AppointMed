@@ -5,6 +5,7 @@ import { Card, Row, Spin, Alert, Flex, Button, message } from "antd";
 import { CheckOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
+import PricingSkeleton from "@/app/components/pricingSkeleton";
 interface Package {
   package_id: number;
   package_name: string;
@@ -65,11 +66,7 @@ const Home: React.FC = () => {
   }
 
   if (!packages) {
-    return (
-      <Spin size="large" tip="Loading Packages...">
-        <Row gutter={16} style={{ minHeight: "200px" }} />
-      </Spin>
-    );
+    return <PricingSkeleton />;
   }
 
   const handleCardClick = async (packageId: number) => {

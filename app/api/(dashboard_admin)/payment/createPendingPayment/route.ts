@@ -21,6 +21,8 @@ export async function POST(req: Request) {
       password,
     } = body;
 
+    console.log(body)
+
     // Check if a merchant with the same email already exists
     const existingMerchant = await prisma.merchantPendingPayment.findFirst({
       where: { merchant_email },

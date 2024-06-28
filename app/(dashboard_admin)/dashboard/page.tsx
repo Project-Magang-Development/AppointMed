@@ -15,10 +15,22 @@ import {
   Spin,
   Avatar,
   Table,
+  Select,
 } from "antd";
+import {
+  LineChart,
+  ResponsiveContainer,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  Line,
+} from "recharts";
 import { ClockCircleOutlined, UserOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import "dayjs/locale/id";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -27,7 +39,8 @@ import allLocales from "@fullcalendar/core/locales-all";
 import DashboardSkeleton from "@/app/components/dashboardSkeleton";
 
 dayjs.extend(utc);
-
+dayjs.locale("id");
+const { Option } = Select;
 const { Title } = Typography;
 
 interface EventDetails {
@@ -57,6 +70,7 @@ const fetcher = (url: string) =>
     });
 
 export default function AdminDashboard() {
+  const [selectedYear, setSelectedYear] = useState(dayjs().year());
   const {
     data: countData,
     error: countError,
@@ -68,8 +82,31 @@ export default function AdminDashboard() {
     mutate,
     isLoading,
   } = useSWR("/api/queue/showQueueDashboard", fetcher);
+  const {
+    data: totalAmount,
+    error: totalAmountError,
+    isLoading: totalAmountLoading,
+  } = useSWR("/api/payment/totalAmount", fetcher);
+  const {
+    data: countPatient,
+    error: countPatientError,
+    isLoading: countPatientLoading,
+  } = useSWR("/api/queue/countPatient", fetcher);
+  const {
+    data: queuePerMonth,
+    error: queuePerMonthError,
+    isLoading: queuePerMonthLoading,
+  } = useSWR(`/api/queue/${selectedYear}`, fetcher);
+  const {
+    data: revenuePerMonth,
+    error: revenuePerMonthError,
+    isLoading: revenuePerMonthLoading,
+  } = useSWR(`/api/payment/${selectedYear}`, fetcher);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<EventDetails | null>(null);
+  const currentMonth = dayjs().format("MMMM");
+  const currentYear = dayjs().year();
+  const currentMonthYearSentence = ` ${currentMonth} - ${currentYear}`;
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -172,7 +209,34 @@ export default function AdminDashboard() {
   if (countError || showQueueError)
     return <Alert message="Error loading data!" type="error" />;
 
-  if (countData == null || showQueue == null) return <DashboardSkeleton />;
+  if (
+    countData == null ||
+    showQueue == null ||
+    totalAmount == null ||
+    countPatient == null ||
+    queuePerMonth == null ||
+    revenuePerMonth == null
+  )
+    return <DashboardSkeleton />;
+
+  const totalRevenue =
+    totalAmount._sum.amount !== null ? totalAmount._sum.amount : 0;
+
+  const totalPatient = countPatient.count;
+
+  const queuePerMonths = queuePerMonth.map((queue: any) => ({
+    month: dayjs()
+      .month(queue.month - 1)
+      .format("MMMM"),
+    "Jumlah Pasien": queue.count,
+  }));
+
+  const revenuePerMonths = revenuePerMonth.map((revenue: any) => ({
+    month: dayjs()
+      .month(revenue.month - 1)
+      .format("MMMM"),
+    "Jumlah Pendapatan": revenue.amount,
+  }));
 
   const stats = [
     {
@@ -181,23 +245,34 @@ export default function AdminDashboard() {
       icon: <img src="/icons/pasien.svg" alt="" />,
     },
     {
-      title: "Waktu Hari ini",
+      title: "Waktu Hari Ini",
       value: currentTime.toLocaleTimeString("en-GB", { hourCycle: "h23" }),
       icon: <img src="/icons/waktu.svg" alt="" />,
+    },
+    {
+      title: "Pendapatan",
+      value: `Rp. ${totalRevenue.toLocaleString()}`,
+      icon: <img src="/icons/pendapatan.svg" alt="" />,
+    },
+    {
+      title: "Antrian Hari Ini",
+      value: totalPatient,
+      icon: <img src="/icons/antrian.svg" alt="" />,
     },
   ];
 
   return (
     <SWRConfig>
       <div>
+        <Title level={3}>{currentMonthYearSentence}</Title>
         <Flex justify="space-between">
-          <Flex gap={16} style={{ marginBottom: 20 }}>
+          <Flex gap={16} style={{ marginBottom: 30, width: "100%" }}>
             {stats.map((item, index) => (
               <Flex
                 gap={20}
                 style={{
                   padding: "20px",
-                  paddingRight: "80px",
+                  width: "100%",
                   height: "100%",
                   backgroundColor: "white",
                   borderRadius: "10px",
@@ -254,7 +329,7 @@ export default function AdminDashboard() {
                           .format("YYYY-MM-DD"),
                         extendedProps: {
                           patient_name: queue.Reservation.patient_name,
-                          doctor_name: queue.Reservation.Schedule.doctors.name,
+                          doctor_name: queue.Reservation.Schedule.doctor.name,
                           patient_phone: queue.Reservation.patient_phone,
                           patient_gender: queue.Reservation.patient_gender,
                           time: dayjs
@@ -299,7 +374,7 @@ export default function AdminDashboard() {
                         <Title level={5}>
                           {queue.Reservation.patient_name}
                         </Title>
-                        <p>{queue.Reservation.Schedule.doctors.name}</p>
+                        <p>{queue.Reservation.Schedule.doctor.name}</p>
                       </Col>
                       <p>
                         {dayjs.utc(queue.Reservation.date_time).format("HH:mm")}
@@ -312,6 +387,84 @@ export default function AdminDashboard() {
               )}
             </Card>
           </Col>
+        </Flex>
+        <Select
+          defaultValue={selectedYear}
+          style={{ width: 120, marginTop: 20 }}
+          onChange={(value) => setSelectedYear(value)}
+        >
+          {Array.from(
+            new Array(20),
+            (val, index) => dayjs().year() - index
+          ).map((year) => (
+            <Option key={year} value={year}>
+              {year}
+            </Option>
+          ))}
+        </Select>
+        <Flex justify="space-between" style={{ marginTop: 20 }}>
+          <Card style={{ flex: 1, marginRight: 10 }}>
+            <Title level={3} style={{ textAlign: "center" }}>
+              Jumlah Pasien {selectedYear}
+            </Title>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={queuePerMonths}>
+                <CartesianGrid strokeDasharray="5 5" />
+                <XAxis dataKey="month" />
+                <YAxis
+                  allowDecimals={false}
+                  domain={["dataMin - 1", "dataMax + 1"]}
+                  label={{
+                    value: "Jumlah",
+                    angle: -90,
+                    position: "insideLeft",
+                  }}
+                />
+                <Tooltip />
+                <Legend />
+                <Line
+                  dataKey="Jumlah Pasien"
+                  stroke="#8884d8"
+                  activeDot={{ r: 8 }}
+                  animationBegin={500}
+                  animationDuration={2000}
+                  type="monotone"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+          <Card style={{ flex: 1, marginLeft: 10 }}>
+            <Title level={3} style={{ textAlign: "center" }}>
+              Jumlah Pendapatan {selectedYear}
+            </Title>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={revenuePerMonths}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis
+                  tickFormatter={(value) =>
+                    `${(value / 1000000).toFixed(1)} Jt`
+                  }
+                  domain={["dataMin", "dataMax"]}
+                  label={{
+                    value: "Total (Jt)",
+                    angle: -90,
+                    position: "insideLeft",
+                  }}
+                />
+                <Tooltip />
+                <Legend />
+                <Line
+                  dataKey="Jumlah Pendapatan"
+                  stroke="#8884d8"
+                  activeDot={{ r: 8 }}
+                  animationBegin={500}
+                  animationDuration={2000}
+                  type="monotone"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
         </Flex>
       </div>
     </SWRConfig>

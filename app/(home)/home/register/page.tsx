@@ -12,6 +12,7 @@ import {
   Select,
   Typography,
   message,
+  notification,
 } from "antd";
 import {
   UserOutlined,
@@ -294,7 +295,9 @@ const RegisterDashboard: React.FC = () => {
         console.log("Akun Merchant Dibuat");
       }
 
-      message.success("Registration successful!");
+      notification.success({
+        message: "Registrasi Berhasil!",
+      });
       if (invoiceResult.invoice_url) {
         console.log("Invoice URL:", invoiceResult.invoice_url);
         window.location.href = invoiceResult.invoice_url;
@@ -308,6 +311,7 @@ const RegisterDashboard: React.FC = () => {
         // router.push("/home");
       }
       setLoading(false);
+       router.push("/home/register/success");
     } catch (error) {
       console.error("Registration failed:", error);
       message.error("Registration failed.");
@@ -564,7 +568,7 @@ const RegisterDashboard: React.FC = () => {
                   color: "#007E85",
                 }}
               >
-                Data Rental
+                Data Klinik
               </p>
               <Divider style={{ border: "1px solid #007E85", marginTop: 5 }} />
               <Flex gap={10} style={{ width: "100%" }}>
@@ -605,8 +609,8 @@ const RegisterDashboard: React.FC = () => {
                       borderColor: "#007E85",
                     }}
                   >
-                    <Select.Option value="motor">Pratama</Select.Option>
-                    <Select.Option value="mobil">Utama</Select.Option>
+                    <Select.Option value="Pratama">Pratama</Select.Option>
+                    <Select.Option value="Utama">Utama</Select.Option>
                   </Select>
                 </Form.Item>
               </Flex>

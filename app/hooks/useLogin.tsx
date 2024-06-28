@@ -38,6 +38,7 @@ export const useCompanyName = () => {
   return companyName;
 };
 
+
 export const useMerchantName = () => {
   const [merchantName, setMerchantName] = useState("");
   const { token } = useAuthToken();

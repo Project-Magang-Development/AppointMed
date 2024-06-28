@@ -14,6 +14,7 @@ import {
   Space,
   Spin,
   message,
+  notification,
   theme,
 } from "antd";
 import Link from "next/link";
@@ -89,8 +90,8 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const merchantName = useMerchantName();
   const apiKey = useApiKey();
   const [loading, setLoading] = useState(true);
-  const [newOrdersCount, setNewOrdersCount] = useState(0);
-  const [newBookingsCount, setNewBookingsCount] = useState(0);
+  const [newReservationsCount, setNewReservationsCount] = useState(0);
+  const [newQueuesCount, setNewQueuesCount] = useState(0);
   const [selectedContent, setSelectedContent] = useState<string>("");
 
   const [collapsed, setCollapsed] = useState(false);
@@ -105,87 +106,130 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     "/dashboard/doctor",
     "/dashboard/queue",
     "/dashboard/reservation",
+    "/dashboard/subscription",
   ];
   const shouldHideCompanyName = disableCompanyName.some((route) =>
     pathname.includes(route)
   );
+   useEffect(() => {
+     const token = Cookies.get("token");
 
-  // const fetchDataWithLastChecked = async (
-  //   endpoint: string,
-  //   lastCheckedKey: string,
-  //   setStateCallback: React.Dispatch<React.SetStateAction<number>>
-  // ) => {
-  //   const token = Cookies.get("token");
-  //   const lastChecked = localStorage.getItem(lastCheckedKey) || "";
+     if (!token) return;
 
-  //   if (!token) {
-  //     console.error("Authentication token not found.");
-  //     setLoading(false);
-  //     return;
-  //   }
+     const updateSubscriptionStatus = async () => {
+       try {
+         const response = await fetch("/api/checkSubcription", {
+           method: "POST",
+           headers: {
+             "Content-Type": "application/json",
+             Authorization: `Bearer ${token}`,
+           },
+         });
 
-  //   try {
-  //     const query = lastChecked ? `?lastChecked=${lastChecked}` : "";
-  //     const response = await fetch(`${endpoint}${query}`, {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
+         const data = await response.json();
 
-  //     if (!response.ok) {
-  //       throw new Error(`Failed to fetch data. Status: ${response.status}`);
-  //     }
+         if (!response.ok) {
+           throw new Error(
+             data.error || "Failed to update subscription status"
+           );
+         }
 
-  //     const data = await response.json();
-  //     setStateCallback(data.count);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+         if (data.message === "Langganan sudah berakhir.") {
+           Cookies.remove("token");
+           router.push("dashboard/login");
+         }
 
-  // useEffect(() => {
-  //   fetchDataWithLastChecked(
-  //     "/api/order/count",
-  //     "lastCheckedOrderTime",
-  //     setNewOrdersCount
-  //   );
-  //   fetchDataWithLastChecked(
-  //     "/api/booking/count",
-  //     "lastCheckedBookingTime",
-  //     setNewBookingsCount
-  //   );
+         if (data.message.length > 0) {
+           notification.info({
+             message: "Notifikasi Langganan",
+             description: data.message,
+           });
+         }
+       } catch (error) {
+         console.error("Error updating subscription status:", error);
+       }
+     };
 
-  //   const intervalId = setInterval(() => {
-  //     fetchDataWithLastChecked(
-  //       "/api/order/count",
-  //       "lastCheckedOrderTime",
-  //       setNewOrdersCount
-  //     );
-  //     fetchDataWithLastChecked(
-  //       "/api/booking/count",
-  //       "lastCheckedBookingTime",
-  //       setNewBookingsCount
-  //     );
-  //   }, 30000);
+     updateSubscriptionStatus();
+   }, [router]);
 
-  //   return () => clearInterval(intervalId);
-  // }, []);
 
-  // const handleOrderClick = () => {
-  //   localStorage.setItem("lastCheckedOrderTime", Date.now().toString());
-  //   setNewOrdersCount(0);
-  //   router.push("/dashboard/order");
-  // };
+  const fetchDataWithLastChecked = async (
+    endpoint: string,
+    lastCheckedKey: string,
+    setStateCallback: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    const token = Cookies.get("token");
+    const lastChecked = localStorage.getItem(lastCheckedKey) || "";
 
-  // const handleBookingClick = () => {
-  //   localStorage.setItem("lastCheckedBookingTime", Date.now().toString());
-  //   setNewBookingsCount(0);
-  //   router.push("/dashboard/booking");
-  // };
+    if (!token) {
+      console.error("Authentication token not found.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const query = lastChecked ? `?lastChecked=${lastChecked}` : "";
+      const response = await fetch(`${endpoint}${query}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch data. Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setStateCallback(data.count);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDataWithLastChecked(
+      "/api/reservation/count",
+      "lastCheckedOrderTime",
+      setNewReservationsCount
+    );
+    fetchDataWithLastChecked(
+      "/api/queue/count",
+      "lastCheckedBookingTime",
+      setNewQueuesCount
+    );
+
+    const intervalId = setInterval(() => {
+      fetchDataWithLastChecked(
+        "/api/reservation/count",
+        "lastCheckedOrderTime",
+        setNewReservationsCount
+      );
+      fetchDataWithLastChecked(
+        "/api/queue/count",
+        "lastCheckedBookingTime",
+        setNewQueuesCount
+      );
+    }, 30000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const handleReservationClick = () => {
+    localStorage.setItem("lastCheckedOrderTime", Date.now().toString());
+    setNewReservationsCount(0);
+    router.push("/dashboard/reservation");
+  };
+
+  const handleQueueClick = () => {
+    localStorage.setItem("lastCheckedBookingTime", Date.now().toString());
+    setNewQueuesCount(0);
+    router.push("/dashboard/queue");
+  };
 
   if (shouldHideSidebar) {
     return <>{children}</>;
@@ -213,7 +257,6 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       .map((item: any) => item.key);
   };
 
-  // Definisikan items tanpa properti style
   const initialItems: MenuItem[] = [
     {
       key: "/dashboard",
@@ -228,12 +271,50 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     {
       key: "/dashboard/reservation",
       icon: <OrderedListOutlined />,
-      label: <Link href="/dashboard/reservation">Reservasi</Link>,
+      label:
+        newReservationsCount > 0 ? (
+          <Badge count={newReservationsCount}>
+            <Link
+              href="/dashboard/reservation"
+              onClick={handleReservationClick}
+              style={{ color: "inherit", textDecoration: "none" }}
+            >
+              Reservasi
+            </Link>
+          </Badge>
+        ) : (
+          <Link
+            href="/dashboard/reservation"
+            onClick={handleReservationClick}
+            style={{ color: "inherit", textDecoration: "none" }}
+          >
+            Reservasi
+          </Link>
+        ),
     },
     {
       key: "/dashboard/queue",
       icon: <BookOutlined />,
-      label: <Link href="/dashboard/queue">Antrian</Link>,
+      label:
+        newQueuesCount > 0 ? (
+          <Badge count={newQueuesCount}>
+            <Link
+              href="/dashboard/queue"
+              onClick={handleQueueClick}
+              style={{ color: "inherit", textDecoration: "none" }}
+            >
+              Antrian
+            </Link>
+          </Badge>
+        ) : (
+          <Link
+            href="/dashboard/queue"
+            onClick={handleQueueClick}
+            style={{ color: "inherit", textDecoration: "none" }}
+          >
+            Antrian
+          </Link>
+        ),
     },
   ];
 
@@ -253,7 +334,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       cancelText: "Tidak",
       onOk: () => {
         Cookies.remove("token");
-        message.success("Logout successful!");
+        message.success("Anda telah berhasil keluar.");
         window.location.href = "/dashboard/login";
       },
     });

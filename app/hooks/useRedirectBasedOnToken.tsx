@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const useAuthToken = () => {
   const token = Cookies.get("token");
-  const adminToken = Cookies.get("adminToken");
+  const adminToken = Cookies.get("tokenAdmin");
   return { token, adminToken };
 };
 

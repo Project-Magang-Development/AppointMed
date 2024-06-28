@@ -245,7 +245,7 @@ export default function AdminPackageDashboard() {
       key: "package_description",
     },
     {
-      title: "tag paket",
+      title: "Tag Paket",
       dataIndex: "package_tag",
       key: "package_tag",
     },
@@ -365,7 +365,7 @@ export default function AdminPackageDashboard() {
             name="tag"
             rules={[{ required: false, message: "Tolong Masukan tag!" }]}
           >
-            <Input placeholder="tag" />
+            <Input placeholder="Tag Paket" />
           </Form.Item>
           <Form.Item
             name="feature"
@@ -384,11 +384,11 @@ export default function AdminPackageDashboard() {
             rules={[
               {
                 required: true,
-                message: "Tolong Masukan Penyimpanan Data Order Yang Masuk!",
+                message: "Tolong Masukan Penyimpanan Data Reservasi Yang Masuk!",
               },
             ]}
           >
-            <Input placeholder="Penyimpanan Data Order Yang Masuk (Boleh Kosong)" />
+            <Input placeholder="Penyimpanan Data Reservasi Yang Masuk (Boleh Kosong)" />
           </Form.Item>
           <Form.Item
             name="count_order"
@@ -396,11 +396,11 @@ export default function AdminPackageDashboard() {
               {
                 required: true,
                 message:
-                  "Tolong Masukan Penyimpanan Data Kendaraan Yang Masuk!",
+                  "Tolong Masukan Penyimpanan Data Dokter Yang Masuk!",
               },
             ]}
           >
-            <Input placeholder="Penyimpanan Data Kendaraan Yang Masuk (Boleh Kosong)" />
+            <Input placeholder="Penyimpanan Data Dokter Yang Masuk (Boleh Kosong)" />
           </Form.Item>
           <Form.Item
             name="duration"

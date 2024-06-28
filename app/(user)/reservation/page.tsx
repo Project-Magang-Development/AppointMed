@@ -101,7 +101,7 @@ export default function FormPage() {
           invoice_reminder: ["whatsapp"],
           invoice_paid: ["whatsapp"],
         },
-        success_redirect_url: "http://localhost:3000/",
+        success_redirect_url: "http://localhost:3000/reservation/success",
         items: [
           {
             name: detailSchedule.detailSchedule.doctor.name,
@@ -209,7 +209,7 @@ export default function FormPage() {
         {
           key: "doctor_name",
           doctor: detailSchedule.detailSchedule.doctor.name,
-          date: dayjs(reservationData.Schedule.date).format("D MMM YYYY"),
+          date: dayjs(date_time).format("D MMM YYYY"),
           cost: `Rp ${detailSchedule.detailSchedule.doctor.price.toLocaleString()}`,
         },
       ]

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Form, Input, Layout, Typography, message } from "antd";
+import { Button, Form, Input, Layout, Typography, message, notification } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 
 const { Content } = Layout;
@@ -32,7 +32,10 @@ const RegisterDashboard: React.FC = () => {
         throw new Error(`Error: ${response.status}`);
       }
       localStorage.removeItem("planDuration");
-      message.success("Registration successful!");
+      notification.success({
+        message: "Register Berhasil!",
+      });
+      router.push("/dashboard-admin/login");
       setLoading(false);
     } catch {
       message.error("Registration failed.");

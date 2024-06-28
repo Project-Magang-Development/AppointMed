@@ -43,6 +43,7 @@ const postPayment = async (invoiceData: any) => {
       data: {
         reservation_id,
         merchant_id,
+        payment_id: newPayment.payment_id,
         has_arrived: null,
       },
     });

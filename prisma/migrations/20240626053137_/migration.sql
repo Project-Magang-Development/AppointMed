@@ -170,10 +170,13 @@ CREATE TABLE `Payment` (
 -- CreateTable
 CREATE TABLE `Queue` (
     `queue_id` VARCHAR(191) NOT NULL,
+    `payment_id` VARCHAR(191) NOT NULL,
     `merchant_id` VARCHAR(191) NOT NULL,
     `reservation_id` VARCHAR(191) NOT NULL,
     `has_arrived` BOOLEAN NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
+    UNIQUE INDEX `Queue_payment_id_key`(`payment_id`),
     UNIQUE INDEX `Queue_reservation_id_key`(`reservation_id`),
     PRIMARY KEY (`queue_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -222,6 +225,9 @@ ALTER TABLE `Payment` ADD CONSTRAINT `Payment_merchant_id_fkey` FOREIGN KEY (`me
 
 -- AddForeignKey
 ALTER TABLE `Queue` ADD CONSTRAINT `Queue_reservation_id_fkey` FOREIGN KEY (`reservation_id`) REFERENCES `Reservation`(`reservation_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Queue` ADD CONSTRAINT `Queue_payment_id_fkey` FOREIGN KEY (`payment_id`) REFERENCES `Payment`(`payment_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Queue` ADD CONSTRAINT `Queue_merchant_id_fkey` FOREIGN KEY (`merchant_id`) REFERENCES `Merchant`(`merchant_id`) ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -232,7 +232,7 @@ export async function POST(req: NextRequest) {
       from: '"AppointMed" <no-reply@gmail.com>',
       to: doctorEmail,
       subject: "Detail Reservasi Pasien",
-      text: `Detail Reservasi Pasien\n\nNo Reservasi: ${createdReservation.no_reservation}\nNama Pasien: ${patient_name}\nNomor Telepon: ${patient_phone}\nJenis Kelamin: ${patient_gender}`,
+      text: `Detail Reservasi Pasien\n\nNo Reservasi: ${createdReservation.no_reservation}\nNama Pasien: ${patient_name}\nNomor Telepon: ${patient_phone}\nJenis Kelamin: ${patient_gender}\nJam: ${dateTime}`,
       html: `
       <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-align: center; padding: 40px; color: #333;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;">

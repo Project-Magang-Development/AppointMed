@@ -3,12 +3,10 @@ import prisma from "@/lib/prisma";
 
 export async function GET(req: Request) {
   try {
-
     const apiKeyHeader = req.headers.get("Authorization");
     const apiKey = apiKeyHeader?.split(" ")[1];
 
-
-    console.log(apiKey)
+    console.log(apiKey);
 
     if (!apiKey) {
       return new Response(JSON.stringify({ error: "API key not provided" }), {
@@ -20,7 +18,6 @@ export async function GET(req: Request) {
     const merchant = await prisma.merchant.findUnique({
       where: { api_key: apiKey },
     });
-
 
     if (!merchant) {
       return new Response(
@@ -39,6 +36,7 @@ export async function GET(req: Request) {
         specialist: true,
         name: true,
         no_sip: true,
+        price: true,
         experiences: true,
       },
     });

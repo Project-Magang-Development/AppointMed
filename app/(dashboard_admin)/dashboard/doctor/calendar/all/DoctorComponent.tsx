@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { TimePicker, Button, Space, notification } from "antd";
+import { TimePicker, Button, Space, notification, Divider } from "antd";
 import useSWR from "swr";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import Title from "antd/es/typography/Title";
 
 dayjs.extend(utc);
 
@@ -144,7 +145,7 @@ const DoctorSchedule: React.FC<DoctorScheduleProps> = ({ doctor }) => {
         });
       }
 
-      await mutate(); // Refresh the data after all operations
+      await mutate();
     } catch (error) {
       console.error("Failed to save schedule:", error);
       notification.error({
@@ -157,68 +158,84 @@ const DoctorSchedule: React.FC<DoctorScheduleProps> = ({ doctor }) => {
   const practiceDays = doctor.practiceDays.split(", ");
 
   return (
-    <div>
-      <Image
-        src={doctor.imageUrl}
-        alt={doctor.name}
-        width={200}
-        height={200}
-        layout="responsive"
-      />
-      <h3 style={{ textAlign: "center", marginTop: 10 }}>
-        {doctor.name}
-        <br />
-        {doctor.specialist}
-      </h3>
-      {practiceDays.map((day) => (
-        <div
-          key={day.trim()}
+    <>
+      <div>
+        <Image
+          src={doctor.imageUrl}
+          alt={doctor.name}
+          width={200}
+          height={200}
+          layout="responsive"
+        />
+        <Title
+          level={4}
+          style={{ textAlign: "center", marginTop: 15, marginBlock: 0 }}
+        >
+          {doctor.name}
+        </Title>
+        <Title
+          level={4}
           style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: 8,
+            textAlign: "center",
             marginTop: 10,
+            marginBottom: 10,
+            marginBlock: 0,
           }}
         >
-          <p style={{ width: 100, margin: 0 }}>{day.trim()}:</p>
-          <Space>
-            <TimePicker
-              value={
-                schedules[day.trim()]?.start
-                  ? dayjs.utc(schedules[day.trim()].start)
-                  : null
-              }
-              format="HH:mm"
-              onChange={(time, timeString) =>
-                handleTimeChange(timeString, day.trim(), "start")
-              }
-            />
-            <p> s/d </p>
-            <TimePicker
-              value={
-                schedules[day.trim()]?.end
-                  ? dayjs.utc(schedules[day.trim()].end)
-                  : null
-              }
-              format="HH:mm"
-              onChange={(time, timeString) =>
-                handleTimeChange(timeString, day.trim(), "end")
-              }
-            />
-          </Space>
-        </div>
-      ))}
-      <Button
-        style={{
-          marginTop: 20,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        onClick={saveSchedule}
-      >
-        Set Jadwal
-      </Button>
-    </div>
+          {doctor.specialist}
+        </Title>
+        <Divider/>
+        {practiceDays.map((day) => (
+          <div
+            key={day.trim()}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: 8,
+              marginTop: 10,
+            }}
+          >
+            <p style={{ width: 100, margin: 0 }}>{day.trim()}:</p>
+            <Space>
+              <TimePicker
+                value={
+                  schedules[day.trim()]?.start
+                    ? dayjs.utc(schedules[day.trim()].start)
+                    : null
+                }
+                format="HH:mm"
+                onChange={(time, timeString) =>
+                  handleTimeChange(timeString, day.trim(), "start")
+                }
+              />
+              <p> s/d </p>
+              <TimePicker
+                value={
+                  schedules[day.trim()]?.end
+                    ? dayjs.utc(schedules[day.trim()].end)
+                    : null
+                }
+                format="HH:mm"
+                onChange={(time, timeString) =>
+                  handleTimeChange(timeString, day.trim(), "end")
+                }
+              />
+            </Space>
+          </div>
+        ))}
+        <Divider/>
+        <Button
+          style={{
+            marginTop: 20,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onClick={saveSchedule}
+        >
+          Set Jadwal
+        </Button>
+      </div>
+    </>
   );
 };
 

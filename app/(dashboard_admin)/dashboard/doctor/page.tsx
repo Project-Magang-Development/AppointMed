@@ -192,7 +192,7 @@ export default function AdminDcotorDashboard() {
             false
           );
           notification.success({
-            message: "Data Kendaraan Berhasil Dihapus",
+            message: "Data Dokter Berhasil Dihapus",
           });
         } catch (error) {
           notification.error({
@@ -309,7 +309,7 @@ export default function AdminDcotorDashboard() {
         if (response.status === 401) {
           notification.error({
             message: "Gagal",
-            description: "Limit Tambah Kendaraan Sudah Habis",
+            description: "Limit Tambah Dokter Sudah Habis",
           });
         } else {
           throw new Error(errorData.message || "Failed to process vehicle");
@@ -364,14 +364,6 @@ export default function AdminDcotorDashboard() {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => callback(reader.result);
-  };
-
-  const handleMouseEnter = () => {
-    setHoverDelete(true);
-  };
-
-  const handleMouseLeave = () => {
-    setHoverDelete(false);
   };
 
   const filteredDoctors = useMemo(() => {
@@ -491,10 +483,10 @@ export default function AdminDcotorDashboard() {
           <Tooltip title="Hapus">
             <Button
               icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record.doctor_id)} // Mengganti vehicles_id dengan doctor_id
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-              danger={hoverDelete}
+              onClick={() => handleDelete(record.doctor_id)}
+              onMouseEnter={() => setHoverDelete(true)}
+              onMouseLeave={() => setHoverDelete(false)}
+              danger
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -502,7 +494,7 @@ export default function AdminDcotorDashboard() {
               }}
             />
           </Tooltip>
-          <Tooltip title="Jadwal">
+          <Tooltip title="Detail">
             <Button
               icon={<InfoCircleOutlined />}
               onClick={() => handleViewDetail(record.doctor_id)}

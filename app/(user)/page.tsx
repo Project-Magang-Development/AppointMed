@@ -31,12 +31,11 @@ interface Doctor {
   specialist: string;
   no_sip: string;
   experiences: string;
+  price: number;
 }
 
-interface Schedule {
-  schedules_id: string;
-  start_date: string;
-  end_date: string;
+interface ScheduleProps {
+  apiKey: string;
 }
 
 interface Reservation {
@@ -51,7 +50,7 @@ interface TimeSlot {
   reservationNo: string;
 }
 
-const Schedules: React.FC = () => {
+const Schedules: React.FC<ScheduleProps> = () => {
   const [selectedSpecialist, setSelectedSpecialist] = useState<string>("");
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
@@ -62,7 +61,7 @@ const Schedules: React.FC = () => {
   const [selectedScheduleId, setSelectedScheduleId] = useState<string>("");
   const apiBaseUrl = "http://localhost:3000";
   const apiKey =
-    "60270c663785cda7f5111891856c7a6e0aa78d682d690dcefef5f7974ebff99d";
+    "7cc3648404b416dd52648d549c2ad325d0309285f4fa65f181ca8000b7cadd45";
 
   const fetcher = (url: string) =>
     fetch(url, {
@@ -290,7 +289,9 @@ const Schedules: React.FC = () => {
                       label={doctor.name}
                     >
                       <Tooltip
-                        title={`Nomor SIP: ${doctor.no_sip}, Pengalaman: ${doctor.experiences}`}
+                        title={`Nomor SIP: ${doctor.no_sip}, Pengalaman: ${
+                          doctor.experiences
+                        }, Harga: Rp. ${doctor.price.toLocaleString()}`}
                       >
                         <Text strong>{doctor.name}</Text>
                       </Tooltip>

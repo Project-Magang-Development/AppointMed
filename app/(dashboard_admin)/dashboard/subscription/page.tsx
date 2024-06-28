@@ -80,9 +80,8 @@ export default function SubscriptionPage() {
           {moment(subscriptionNow.subscriptionNow.end_date).format("LL")}{" "}
         </h1>
         <Button
-          type="primary"
           icon={<RiseOutlined />}
-          style={{ marginTop: 20 }}
+          style={{ marginTop: 20, color: "#FFF", backgroundColor: "#007E85" }}
           onClick={() => {
             router.push("/home/renew");
           }}

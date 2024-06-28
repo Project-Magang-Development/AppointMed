@@ -17,8 +17,9 @@ import {
 import Cookies from "js-cookie";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { ScheduleOutlined, PlusOutlined } from "@ant-design/icons";
+import { ScheduleOutlined } from "@ant-design/icons";
 import { useRouter, useSearchParams } from "next/navigation";
+import TableSkeleton from "@/app/components/tableSkeleton";
 
 dayjs.extend(utc);
 
@@ -34,7 +35,7 @@ interface Doctor {
 }
 
 interface Schedule {
-  doctors: Doctor;
+  doctor: Doctor;
 }
 
 interface Reservation {
@@ -76,7 +77,7 @@ export default function DashboardQueue() {
         queue.Reservation.patient_name
           .toLowerCase()
           .includes(searchText.toLowerCase()) ||
-        queue.Reservation.Schedule.doctors.name
+        queue.Reservation.Schedule.doctor.name
           .toLowerCase()
           .includes(searchText.toLowerCase())
     );
@@ -84,7 +85,7 @@ export default function DashboardQueue() {
 
   const groupByDoctor = (queues: Queue[]) => {
     return queues.reduce((acc, queue) => {
-      const doctorName = queue.Reservation.Schedule.doctors.name;
+      const doctorName = queue.Reservation.Schedule.doctor.name;
       if (!acc[doctorName]) {
         acc[doctorName] = [];
       }
@@ -161,25 +162,33 @@ export default function DashboardQueue() {
           {record.has_arrived ? (
             <Button
               disabled
-              style={{ cursor: "not-allowed", backgroundColor: "green" }}
+              style={{
+                cursor: "not-allowed",
+                backgroundColor: "green",
+                color: "white",
+              }}
             >
-              Datang
+              Hadir
             </Button>
           ) : (
             <Button onClick={() => updateArrivalStatus(record.queue_id, true)}>
-              Datang
+              Hadir
             </Button>
           )}
           {!record.has_arrived ? (
             <Button
               disabled
-              style={{ cursor: "not-allowed", backgroundColor: "red" }}
+              style={{
+                cursor: "not-allowed",
+                backgroundColor: "red",
+                color: "white",
+              }}
             >
-              Tidak Datang
+              Tidak Hadir
             </Button>
           ) : (
             <Button onClick={() => updateArrivalStatus(record.queue_id, false)}>
-              Tidak Datang
+              Tidak Hadir
             </Button>
           )}
         </Space>
@@ -208,15 +217,17 @@ export default function DashboardQueue() {
         </Flex>
       </Flex>
       <Divider />
-      {error && <div>Failed to load data</div>}
-      {!queues && !error && <div>Loading...</div>}
-      {Object.keys(queuesGroupedByDoctor).length === 0 ? (
+      {error && <Alert message="Gagal mengambil data" type="error" showIcon />}
+      {!queues && !error && <TableSkeleton />}
+      {queues && Object.keys(queuesGroupedByDoctor).length === 0 && (
         <div style={{ textAlign: "center", marginTop: 20 }}>
           <Alert message="Tidak ada data pasien." type="info" showIcon />
         </div>
-      ) : (
+      )}
+      {queues &&
+        Object.keys(queuesGroupedByDoctor).length > 0 &&
         Object.entries(queuesGroupedByDoctor).map(
-          ([doctorName, filteredQueues]) => (
+          ([doctorName, doctorQueues]) => (
             <div key={doctorName} style={{ marginBottom: 32 }}>
               <Flex
                 justify="space-between"
@@ -241,23 +252,19 @@ export default function DashboardQueue() {
                     Antrian Pasien {doctorName}
                   </Title>
                 </Flex>
-                <Button
-                  icon={<PlusOutlined />}
-                  style={{ color: "#FFF", backgroundColor: "#007E85" }}
-                >
-                  Tambah Pasien
-                </Button>
               </Flex>
               <Table
-                dataSource={filteredQueues}
+                dataSource={filteredQueues.filter(
+                  (queue) =>
+                    queue.Reservation.Schedule.doctor.name === doctorName
+                )}
                 columns={columns}
                 rowKey="queue_id"
                 pagination={{ pageSize: 5 }}
               />
             </div>
           )
-        )
-      )}
+        )}
     </div>
   );
 }

@@ -22,21 +22,34 @@ export async function POST(req: Request) {
         },
       });
 
-    const merchant = await prisma.merchant.findUnique({
+    if (!merchantPendingPayment) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const merchant = await prisma.merchant.findFirst({
       where: {
         merchant_email: email,
-        status_subscriber: "Aktif",
       },
       select: {
+        status_subscriber: true,
         merchant_id: true,
-        merchant_email: true,
-        password: true,
         api_key: true,
+        password: true,
       },
     });
 
     if (!merchant) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "User not found or not active" },
+        { status: 404 }
+      );
+    }
+
+    if (merchant.status_subscriber !== "Aktif") {
+      return NextResponse.json(
+        { error: "The subscription period has expired" },
+        { status: 403 }
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(password, merchant.password);
@@ -46,18 +59,16 @@ export async function POST(req: Request) {
 
     const token = jwt.sign(
       {
+        merchant_company: merchantPendingPayment.klinik_name,
         merchantId: merchant.merchant_id,
-
-        merchant_name: merchantPendingPayment?.merchant_name,
-        email: merchant.merchant_email,
-        merchant_company: merchantPendingPayment?.klinik_name,
-
+        email: merchantPendingPayment.merchant_email,
+        merchant_name: merchantPendingPayment.merchant_name,
         api_key: merchant.api_key,
       },
       process.env.JWT_SECRET as string
     );
 
-    return NextResponse.json({ token, apiKey: merchant.api_key });
+    return NextResponse.json({ token });
   } catch (error) {
     console.error("Error accessing database:", error);
     return new NextResponse(
