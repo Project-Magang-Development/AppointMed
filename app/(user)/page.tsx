@@ -50,7 +50,7 @@ interface TimeSlot {
   reservationNo: string;
 }
 
-const Schedules: React.FC<ScheduleProps> = () => {
+const Schedules: React.FC<ScheduleProps> = (apiKey) => {
   const [selectedSpecialist, setSelectedSpecialist] = useState<string>("");
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
@@ -60,8 +60,6 @@ const Schedules: React.FC<ScheduleProps> = () => {
   const [times, setTimes] = useState<TimeSlot[]>([]);
   const [selectedScheduleId, setSelectedScheduleId] = useState<string>("");
   const apiBaseUrl = "http://localhost:3000";
-  const apiKey =
-    "7cc3648404b416dd52648d549c2ad325d0309285f4fa65f181ca8000b7cadd45";
 
   const fetcher = (url: string) =>
     fetch(url, {

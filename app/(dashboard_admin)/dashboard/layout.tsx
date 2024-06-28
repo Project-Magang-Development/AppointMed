@@ -565,21 +565,21 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         )}
 
         {selectedContent === "react" && (
-          <ul>
-            <li>Langkah 1: Import React dari react</li>
-            <li>Langkah 2: Buat komponen</li>
-            <li>Langkah 3: Gunakan komponen dalam aplikasi Anda</li>
-            {/* Tambahkan item lain yang relevan */}
-          </ul>
+          <embed
+            src="/react.pdf"
+            type="application/pdf"
+            width="100%"
+            height="600px"
+          />
         )}
 
         {selectedContent === "html" && (
-          <ul>
-            <li>Langkah 1: Buat file HTML</li>
-            <li>Langkah 2: Tambahkan elemen HTML</li>
-            <li>Langkah 3: Gaya dengan CSS</li>
-            {/* Tambahkan item lain yang relevan */}
-          </ul>
+          <embed
+            src="/html.pdf"
+            type="application/pdf"
+            width="100%"
+            height="600px"
+          />
         )}
       </Modal>
     </Layout>
