@@ -88,8 +88,6 @@ const createMerchant = async (invoiceData: any) => {
           status_subscriber: "Aktif",
           password,
           available_balance: 0,
-          merchant_company: existingPaymentPending.klinik_name,
-          merchant_name: existingPaymentPending.merchant_name,
         },
       });
 

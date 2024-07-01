@@ -9,6 +9,7 @@ import { useForm } from "antd/es/form/Form";
 import Title from "antd/es/typography/Title";
 import { Footer } from "antd/es/layout/layout";
 import { wrap } from "module";
+import FooterSection from "@/app/components/footer";
 
 interface MerchantData {
   merchant_name: string;
@@ -304,14 +305,31 @@ const RegisterRenew = () => {
       vertical
       style={{
         minHeight: "100vh",
+        position: "relative",
 
         justifyContent: "space-between",
         alignContent: "space-between",
       }}
     >
+      <img
+        loading="lazy"
+        draggable={false}
+        style={{
+          position: "absolute",
+          bottom: "10%",
+
+          left: "0",
+          width: "100%",
+          height: "auto",
+          zIndex: -1,
+        }}
+        src="/wave/wave10.svg"
+        alt="wave"
+      />
       <Flex
         vertical
         style={{
+          position: "relative",
           alignItems: "center",
           paddingTop: "20px",
           paddingBottom: "20px",
@@ -321,6 +339,9 @@ const RegisterRenew = () => {
           Perbarui Paket Anda
         </Title>
         <Flex
+          className="package-renew"
+          // wrap="wrap"
+          justify="center"
           gap={30}
           style={{
             maxWidth: "800px",
@@ -400,7 +421,7 @@ const RegisterRenew = () => {
                       style={{ display: "flex", marginTop: "1rem" }}
                     >
                       <CheckOutlined
-                        style={{ marginRight: "5px", color: "#6B7CFF" }}
+                        style={{ marginRight: "5px", color: "#007E85" }}
                       />
                       {feature}
                     </li>
@@ -420,6 +441,7 @@ const RegisterRenew = () => {
               maxWidth: "600px",
               width: "100%",
               height: "30%",
+              backgroundColor: "white",
             }}
           >
             <Title level={4} style={{ marginBottom: "20px" }}>
@@ -549,29 +571,8 @@ const RegisterRenew = () => {
           </div>
         </Flex>
       </Flex>
-      <Footer>
-        <h1
-          style={{
-            textAlign: "center",
-            color: "rgba(0, 0, 0, 0.5)",
-            fontWeight: "normal",
-            fontSize: "1rem",
-            marginTop: "20px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          Powered By
-          <Image
-            src="/logo.png"
-            alt="Vercel Logo"
-            width={120}
-            height={30}
-            style={{ marginLeft: "8px" }}
-          />
-        </h1>
-      </Footer>
+
+      <FooterSection />
     </Flex>
   );
 };

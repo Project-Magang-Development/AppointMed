@@ -111,48 +111,45 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const shouldHideCompanyName = disableCompanyName.some((route) =>
     pathname.includes(route)
   );
-   useEffect(() => {
-     const token = Cookies.get("token");
+  useEffect(() => {
+    const token = Cookies.get("token");
 
-     if (!token) return;
+    if (!token) return;
 
-     const updateSubscriptionStatus = async () => {
-       try {
-         const response = await fetch("/api/checkSubcription", {
-           method: "POST",
-           headers: {
-             "Content-Type": "application/json",
-             Authorization: `Bearer ${token}`,
-           },
-         });
+    const updateSubscriptionStatus = async () => {
+      try {
+        const response = await fetch("/api/checkSubcription", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-         const data = await response.json();
+        const data = await response.json();
 
-         if (!response.ok) {
-           throw new Error(
-             data.error || "Failed to update subscription status"
-           );
-         }
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to update subscription status");
+        }
 
-         if (data.message === "Langganan sudah berakhir.") {
-           Cookies.remove("token");
-           router.push("dashboard/login");
-         }
+        if (data.message === "Langganan sudah berakhir.") {
+          Cookies.remove("token");
+          router.push("dashboard/login");
+        }
 
-         if (data.message.length > 0) {
-           notification.info({
-             message: "Notifikasi Langganan",
-             description: data.message,
-           });
-         }
-       } catch (error) {
-         console.error("Error updating subscription status:", error);
-       }
-     };
+        if (data.message.length > 0) {
+          notification.info({
+            message: "Notifikasi Langganan",
+            description: data.message,
+          });
+        }
+      } catch (error) {
+        console.error("Error updating subscription status:", error);
+      }
+    };
 
-     updateSubscriptionStatus();
-   }, [router]);
-
+    updateSubscriptionStatus();
+  }, [router]);
 
   const fetchDataWithLastChecked = async (
     endpoint: string,
@@ -277,7 +274,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Link
               href="/dashboard/reservation"
               onClick={handleReservationClick}
-              style={{ color: "inherit", textDecoration: "none" }}
+              style={{ color: "white", textDecoration: "none" }}
             >
               Reservasi
             </Link>
@@ -301,7 +298,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Link
               href="/dashboard/queue"
               onClick={handleQueueClick}
-              style={{ color: "inherit", textDecoration: "none" }}
+              style={{ color: "white", textDecoration: "none" }}
             >
               Antrian
             </Link>
@@ -310,7 +307,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <Link
             href="/dashboard/queue"
             onClick={handleQueueClick}
-            style={{ color: "inherit", textDecoration: "none" }}
+            style={{ color: "white", textDecoration: "none" }}
           >
             Antrian
           </Link>
@@ -442,7 +439,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         style={{
           marginLeft: collapsed ? siderWidthCollapsed : siderWidthExpanded,
           transition: "margin 0.2s",
-          backgroundColor: "#F1F5F9",
+          backgroundColor: "white",
         }}
       >
         <Content

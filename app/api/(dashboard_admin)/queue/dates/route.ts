@@ -1,3 +1,4 @@
+// New route to get all queue dates
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
@@ -32,43 +33,25 @@ export async function GET(req: Request) {
       });
     }
 
-    const url = new URL(req.url);
-    const date = url.searchParams.get("date");
-
-    const formattedDate = date
-      ? dayjs.utc(date).format("YYYY-MM-DD")
-      : dayjs().utc().format("YYYY-MM-DD");
-
-    const startOfDay = dayjs.utc(formattedDate).startOf("day").toDate();
-    const endOfDay = dayjs.utc(formattedDate).endOf("day").toDate();
-
-    const queues = await prisma.queue.findMany({
+    const queueDates = await prisma.queue.findMany({
       where: {
         merchant_id: decoded.merchantId,
+      },
+      select: {
+        reservation_id: true,
         Reservation: {
-          date_time: {
-            gte: startOfDay,
-            lt: endOfDay,
+          select: {
+            date_time: true,
           },
         },
-      },
-      include: {
-        Reservation: {
-          include: {
-            Schedule: {
-              include: {
-                doctor: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        queue_id: "desc",
       },
     });
 
-    return new NextResponse(JSON.stringify(queues), {
+    const dates = queueDates.map((queue) =>
+      dayjs.utc(queue.Reservation.date_time).format("YYYY-MM-DD")
+    );
+
+    return new NextResponse(JSON.stringify(dates), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
