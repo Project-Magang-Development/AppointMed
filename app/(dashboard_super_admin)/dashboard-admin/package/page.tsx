@@ -320,8 +320,11 @@ export default function AdminPackageDashboard() {
       <Title level={3}> Data Paket</Title>
       <Divider />
       <Flex>
-        <Button type="primary" onClick={showModal}>
-          Tambah Paket
+        <Button
+          style={{ backgroundColor: "#007E85", color: "white" }}
+          onClick={showModal}
+        >
+          + Tambah Paket
         </Button>
       </Flex>
       <Table
@@ -384,7 +387,8 @@ export default function AdminPackageDashboard() {
             rules={[
               {
                 required: true,
-                message: "Tolong Masukan Penyimpanan Data Reservasi Yang Masuk!",
+                message:
+                  "Tolong Masukan Penyimpanan Data Reservasi Yang Masuk!",
               },
             ]}
           >
@@ -395,8 +399,7 @@ export default function AdminPackageDashboard() {
             rules={[
               {
                 required: true,
-                message:
-                  "Tolong Masukan Penyimpanan Data Dokter Yang Masuk!",
+                message: "Tolong Masukan Penyimpanan Data Dokter Yang Masuk!",
               },
             ]}
           >

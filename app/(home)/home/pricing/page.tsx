@@ -32,10 +32,7 @@ const fetcher = async (url: string) => {
 };
 
 const Home: React.FC = () => {
-  const [loadingButton, setLoadingButton] = useState<Record<number, boolean>>(
-    {}
-  );
-
+  const [loadingButton, setLoadingButton] = useState<string | null>(null);
   const [features, setFeatures] = useState<string[][]>([]);
   const [sortedPackages, setSortedPackages] = useState<Package[]>([]);
   const { data: packages, error } = useSWR<Package[]>(
@@ -72,22 +69,18 @@ const Home: React.FC = () => {
     return <PricingSkeleton />;
   }
 
-  const handleCardClick = async (packageId: number) => {
+  const handleCardClick = async (packageId: string) => {
     try {
-      // Set loading true untuk button spesifik
-      setLoadingButton((prev) => ({ ...prev, [packageId]: true }));
-      await router.push(`/home/register?package=${packageId}`);
+      setLoadingButton(packageId);
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // Simulate async operation
+      router.push(`/home/register?package=${packageId}`);
     } catch (error) {
-      console.error(error);
+      console.log(error);
       message.error("Terjadi kesalahan saat memilih paket");
     } finally {
-      // Set loading false untuk button spesifik
-      setLoadingButton((prev) => ({ ...prev, [packageId]: false }));
+      setLoadingButton(null);
     }
   };
-
-  if (error) return <div>Error loading packages</div>;
-  if (!packages) return <div>Loading packages...</div>;
 
   return (
     <div style={{ position: "relative" }}>
@@ -249,8 +242,8 @@ const Home: React.FC = () => {
                   }}
                 >
                   <Button
-                    onClick={() => handleCardClick(pkg.package_id)}
-                    loading={loadingButton[pkg.package_id]}
+                    onClick={() => handleCardClick(pkg.package_id.toString())}
+                    loading={loadingButton === pkg.package_id.toString()}
                     block
                     size="large"
                     style={{

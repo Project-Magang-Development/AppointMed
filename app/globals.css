@@ -102,3 +102,17 @@
 .recharts-line-dot {
   fill: #007e85 !important; /* Ganti dengan warna yang kamu inginkan */
 }
+
+@media (max-width: 499px) {
+  .anticon-user {
+    display: none !important;
+  }
+
+  .anticon-database {
+    display: none !important;
+  }
+
+  .anticon-dollar-circle {
+    display: none !important;
+  }
+}
