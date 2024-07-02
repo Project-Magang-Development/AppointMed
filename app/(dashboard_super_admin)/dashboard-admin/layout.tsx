@@ -69,6 +69,10 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 
   useEffect(() => {
+    setActiveItem(pathname);
+  }, [pathname]);
+
+  useEffect(() => {
     if (!login) {
       if (!Cookies.get("tokenAdmin")) {
         router.push("/dashboard-admin/login");
@@ -116,10 +120,6 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return <>{children}</>;
   }
 
-  useEffect(() => {
-    // Set activeItem berdasarkan pathname saat halaman dimuat atau berubah
-    setActiveItem(pathname);
-  }, [pathname]);
   const handleClick = (key: any) => {
     setActiveItem(key);
   };
@@ -216,7 +216,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         >
           {collapsed ? (
             <span>
-              <img src="image/appointMed2.png" alt="" />
+              <img src="/image/appointMed2.png" alt="logo" />
             </span>
           ) : (
             <Image

@@ -50,7 +50,7 @@ interface TimeSlot {
   reservationNo: string;
 }
 
-const Schedules: React.FC<ScheduleProps> = () => {
+const Schedules: React.FC<ScheduleProps> = (apiKey) => {
   const [selectedSpecialist, setSelectedSpecialist] = useState<string>("");
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
@@ -59,10 +59,7 @@ const Schedules: React.FC<ScheduleProps> = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [times, setTimes] = useState<TimeSlot[]>([]);
   const [selectedScheduleId, setSelectedScheduleId] = useState<string>("");
-  const apiBaseUrl = "https://4ae4-182-253-75-201.ngrok-free.app";
-  // const apiBaseUrl = "http://localhost:3000";
-  const apiKey =
-    "56732a8c26bcc5816716e5eec86deea42d6c247774c749bdedd342eb68d533fd";
+  const apiBaseUrl = "http://localhost:3001";
 
   const fetcher = (url: string) =>
     fetch(url, {

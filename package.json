@@ -33,6 +33,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-fast-marquee": "^1.6.4",
+    "react-quill": "^2.0.0",
     "react-to-pdf": "^1.0.1",
     "recharts": "^2.12.7",
     "schedules-appointmed": "^1.0.0",

@@ -119,6 +119,9 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     pathname.includes(route)
   );
   useEffect(() => {
+    setActiveItem(pathname);
+  }, [pathname]);
+  useEffect(() => {
     const token = Cookies.get("token");
 
     if (!token) return;
@@ -260,11 +263,6 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       })
       .map((item: any) => item.key);
   };
-
-  useEffect(() => {
-    // Set activeItem berdasarkan pathname saat halaman dimuat atau berubah
-    setActiveItem(pathname);
-  }, [pathname]);
 
   const handleClick = (key: any) => {
     setActiveItem(key);

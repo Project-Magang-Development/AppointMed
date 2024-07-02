@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Lato, Poppins } from "next/font/google";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "./globals.css";
+import "react-quill/dist/quill.snow.css";
+
 
 const lato = Poppins({
   subsets: ["latin"],

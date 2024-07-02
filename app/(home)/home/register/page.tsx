@@ -287,14 +287,6 @@ const RegisterDashboard: React.FC = () => {
         throw new Error("Failed to create payment invoice");
       }
 
-      if (packageData.package_price === 0) {
-        const merchantResult = await createMerchant(
-          paymentResult.newPayment.pending_id
-        );
-
-        console.log("Akun Merchant Dibuat");
-      }
-
       notification.success({
         message: "Registrasi Berhasil!",
       });
