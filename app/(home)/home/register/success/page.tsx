@@ -1,19 +1,22 @@
 "use client";
 
 import React from "react";
-import { Layout, Row, Col, Card, Typography, Button, Steps } from "antd";
+import { Layout, Row, Col, Card, Typography, Button, Steps, Flex } from "antd";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { CheckCircleFilled } from "@ant-design/icons";
 import Title from "antd/es/typography/Title";
+import FooterSection from "@/app/components/footer";
+import Navbar from "@/app/components/Navbar";
 
 const { Content, Footer } = Layout;
 const { Step } = Steps;
 
 const SuccesPage = () => {
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ minHeight: "100vh", zIndex: 1 }}>
+      <Navbar />
       <Content
         style={{
           padding: "20px 50px",
@@ -21,71 +24,60 @@ const SuccesPage = () => {
           alignItems: "center",
         }}
       >
-        <div
+        <Flex
+          justify="center"
           style={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
             textAlign: "center",
             width: "100%",
           }}
         >
-          <Row align="middle" justify="center">
-            <Col>
-              <div style={{ textAlign: "center" }}>
-                <CheckCircleFilled
-                  style={{ fontSize: "80px", color: "#6B7CFF" }}
-                />
-              </div>
+          <Flex align="center" justify="center" style={{ zIndex: 1 }}>
+            <Flex vertical justify="center" align="center">
+              <img src="/icons/success.svg" alt="" width={100} />
               <Title
-                level={3}
+                level={2}
                 style={{
-                  color: "#6B7CFF",
+                  color: "#007E85",
                   margin: 0,
                   marginTop: 30,
                   textAlign: "center",
                 }}
               >
-                Payment Successful!
+                Sukses
               </Title>
               <Title
                 level={4}
                 style={{
-                  color: "#6B7CFF",
+                  color: "#black",
                   marginTop: 10,
                   textAlign: "center",
                 }}
               >
-                Thank you use our system and check your email
+                terimaskasih telah menggunakan sistem kami
               </Title>
-            </Col>
-          </Row>
-        </div>
+            </Flex>
+            <img
+              style={{
+                width: "50%",
+              }}
+              src="/image/rafiki.svg"
+              alt=""
+            />
+          </Flex>
+        </Flex>
       </Content>
-      <Footer>
-        <h1
-          style={{
-            textAlign: "center",
-            color: "rgba(0, 0, 0, 0.5)",
-            fontWeight: "normal",
-            fontSize: "1rem",
-            marginTop: "20px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          Powered By
-          <Image
-            src="/logo.png"
-            alt="Vercel Logo"
-            width={120}
-            height={30}
-            style={{ marginLeft: "8px" }}
-          />
-        </h1>
-      </Footer>
+      <FooterSection />
+      <img
+        style={{
+          position: "absolute",
+          bottom: "-300px",
+          left: 0,
+          width: "100%",
+          zIndex: 0,
+        }}
+        src="/wave/wave11.svg"
+        alt=""
+      />
     </Layout>
   );
 };

@@ -32,3 +32,87 @@
     display: none;
   }
 }
+@media (max-width: 645px) {
+  .package-renew {
+    flex-wrap: wrap !important;
+    padding: 10px;
+  }
+}
+@media (max-width: 430px) {
+  .wave-tentangKami {
+    top: -2% !important;
+  }
+}
+@media (max-width: 1024px) {
+  .button-tentangKami {
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  .button-tentangKami .ant-btn {
+    width: 100% !important;
+  }
+}
+@media (max-width: 426px) {
+  .sub-heading-pricing {
+    width: 100% !important;
+  }
+
+  .form-width {
+    width: "45%" !important;
+  }
+
+  .right-color {
+    display: none;
+  }
+  .left-color {
+    width: 100% !important;
+  }
+
+  .head-ten {
+    justify-content: center !important;
+    align-items: center !important;
+  }
+  .head-t {
+    background-color: #007e85;
+    border-radius: 20px;
+    padding-inline: 10px;
+    margin-top: 10px;
+    font-size: 20px !important;
+  }
+}
+
+/* sider trigger style */
+.ant-layout .ant-layout-sider-trigger {
+  background-color: white !important;
+  color: #007e85 !important;
+}
+
+.ant-steps .ant-steps-item-process .ant-steps-item-icon {
+  background-color: #007e85 !important;
+  border-color: #007e85 !important;
+}
+
+/* Mengubah warna stroke dari titik */
+.recharts-line-dot {
+  stroke: #007e85 !important; /* Ganti dengan warna yang kamu inginkan */
+}
+
+/* Mengubah warna fill dari titik jika diperlukan */
+.recharts-line-dot {
+  fill: #007e85 !important; /* Ganti dengan warna yang kamu inginkan */
+}
+
+@media (max-width: 499px) {
+  .anticon-user {
+    display: none !important;
+  }
+
+  .anticon-database {
+    display: none !important;
+  }
+
+  .anticon-dollar-circle {
+    display: none !important;
+  }
+}

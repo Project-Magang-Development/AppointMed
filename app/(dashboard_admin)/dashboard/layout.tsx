@@ -81,7 +81,14 @@ const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
 
+// Inisialisasi ikon untuk keadaan default dan keadaan aktif
+const dashboardIconDefault = <img src="/icons/dashboard.svg" alt="Dashboard" />;
+const dashboardIconActive = (
+  <img src="/icons/dashboard-active.svg" alt="Dashboard" />
+);
+
 const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [activeItem, setActiveItem] = useState("");
   const siderWidthCollapsed = 80;
   const siderWidthExpanded = 200;
   const router = useRouter();
@@ -111,48 +118,45 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const shouldHideCompanyName = disableCompanyName.some((route) =>
     pathname.includes(route)
   );
-   useEffect(() => {
-     const token = Cookies.get("token");
+  useEffect(() => {
+    const token = Cookies.get("token");
 
-     if (!token) return;
+    if (!token) return;
 
-     const updateSubscriptionStatus = async () => {
-       try {
-         const response = await fetch("/api/checkSubcription", {
-           method: "POST",
-           headers: {
-             "Content-Type": "application/json",
-             Authorization: `Bearer ${token}`,
-           },
-         });
+    const updateSubscriptionStatus = async () => {
+      try {
+        const response = await fetch("/api/checkSubcription", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-         const data = await response.json();
+        const data = await response.json();
 
-         if (!response.ok) {
-           throw new Error(
-             data.error || "Failed to update subscription status"
-           );
-         }
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to update subscription status");
+        }
 
-         if (data.message === "Langganan sudah berakhir.") {
-           Cookies.remove("token");
-           router.push("dashboard/login");
-         }
+        if (data.message === "Langganan sudah berakhir.") {
+          Cookies.remove("token");
+          router.push("dashboard/login");
+        }
 
-         if (data.message.length > 0) {
-           notification.info({
-             message: "Notifikasi Langganan",
-             description: data.message,
-           });
-         }
-       } catch (error) {
-         console.error("Error updating subscription status:", error);
-       }
-     };
+        if (data.message.length > 0) {
+          notification.info({
+            message: "Notifikasi Langganan",
+            description: data.message,
+          });
+        }
+      } catch (error) {
+        console.error("Error updating subscription status:", error);
+      }
+    };
 
-     updateSubscriptionStatus();
-   }, [router]);
-
+    updateSubscriptionStatus();
+  }, [router]);
 
   const fetchDataWithLastChecked = async (
     endpoint: string,
@@ -257,11 +261,27 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       .map((item: any) => item.key);
   };
 
+  useEffect(() => {
+    // Set activeItem berdasarkan pathname saat halaman dimuat atau berubah
+    setActiveItem(pathname);
+  }, [pathname]);
+
+  const handleClick = (key: any) => {
+    setActiveItem(key);
+  };
+
   const initialItems: MenuItem[] = [
     {
       key: "/dashboard",
-      icon: <DashboardOutlined />,
-      label: <Link href="/dashboard">Dashboard</Link>,
+      icon:
+        activeItem === "/dashboard"
+          ? dashboardIconActive
+          : dashboardIconDefault,
+      label: (
+        <Link href="/dashboard" onClick={() => handleClick("/dashboard")}>
+          Dashboard
+        </Link>
+      ),
     },
     {
       key: "/dashboard/doctor",
@@ -277,7 +297,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Link
               href="/dashboard/reservation"
               onClick={handleReservationClick}
-              style={{ color: "inherit", textDecoration: "none" }}
+              style={{ color: "white", textDecoration: "none" }}
             >
               Reservasi
             </Link>
@@ -301,7 +321,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Link
               href="/dashboard/queue"
               onClick={handleQueueClick}
-              style={{ color: "inherit", textDecoration: "none" }}
+              style={{ color: "white", textDecoration: "none" }}
             >
               Antrian
             </Link>
@@ -310,7 +330,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <Link
             href="/dashboard/queue"
             onClick={handleQueueClick}
-            style={{ color: "inherit", textDecoration: "none" }}
+            style={{ color: "white", textDecoration: "none" }}
           >
             Antrian
           </Link>
@@ -442,7 +462,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         style={{
           marginLeft: collapsed ? siderWidthCollapsed : siderWidthExpanded,
           transition: "margin 0.2s",
-          backgroundColor: "#F1F5F9",
+          backgroundColor: "white",
         }}
       >
         <Content
@@ -545,7 +565,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </Layout>
       <Modal
         title="Dokumentasi"
-        visible={selectedContent !== ""}
+        open={selectedContent !== ""}
         onCancel={() => setSelectedContent("")}
         footer={null}
       >

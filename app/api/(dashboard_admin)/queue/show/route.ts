@@ -39,7 +39,6 @@ export async function GET(req: Request) {
       ? dayjs.utc(date).format("YYYY-MM-DD")
       : dayjs().utc().format("YYYY-MM-DD");
 
-
     const startOfDay = dayjs.utc(formattedDate).startOf("day").toDate();
     const endOfDay = dayjs.utc(formattedDate).endOf("day").toDate();
 

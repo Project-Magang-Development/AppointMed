@@ -11,6 +11,7 @@ const createMerchant = async (invoiceData: any) => {
   try {
     const { pending_id, plan } = invoiceData;
 
+    // mengambil data dari merchantPendingPayment
     const existingPaymentPending =
       await prisma.merchantPendingPayment.findUnique({
         where: { pending_id },
@@ -75,6 +76,8 @@ const createMerchant = async (invoiceData: any) => {
 
       newMerchant = await prisma.merchant.create({
         data: {
+          merchant_name: existingPaymentPending.merchant_name,
+          merchant_company: existingPaymentPending.klinik_name,
           start_date: startDate,
           end_date: endDate,
           api_key: generateApiKey(),
@@ -85,8 +88,6 @@ const createMerchant = async (invoiceData: any) => {
           status_subscriber: "Aktif",
           password,
           available_balance: 0,
-          merchant_company: existingPaymentPending.klinik_name,
-          merchant_name: existingPaymentPending.merchant_name,
         },
       });
 

@@ -103,7 +103,6 @@ export default function LoginDashboard() {
       <Content
         style={{
           zIndex: "1",
-
           display: "flex",
           flexWrap: "wrap",
           justifyContent: "center",
@@ -124,7 +123,12 @@ export default function LoginDashboard() {
             align="center"
             justify="center"
           >
-            <Flex wrap="wrap" justify="center" align="center" style={{ marginBottom: "2rem" }}>
+            <Flex
+              wrap="wrap"
+              justify="center"
+              align="center"
+              style={{ marginBottom: "2rem" }}
+            >
               <Title level={2}>Selamat Datang!</Title>
             </Flex>
             <Form

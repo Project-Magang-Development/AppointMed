@@ -2,12 +2,14 @@
 
 import React, { useMemo, useState } from "react";
 import useSWR from "swr";
-import { Divider, Flex, Input, Table } from "antd";
+import { Button, Divider, Flex, Input, Space, Table, Tooltip } from "antd";
 import Cookies from "js-cookie";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { EyeOutlined } from "@ant-design/icons";
 import Title from "antd/es/typography/Title";
 import TableSkeleton from "@/app/components/tableSkeleton";
+import { useRouter } from "next/navigation";
 
 dayjs.extend(utc);
 
@@ -28,6 +30,7 @@ interface ReservationData {
 }
 
 export default function DashboardReservation() {
+  const router = useRouter();
   const { data, error, isLoading } = useSWR<ReservationData[]>(
     "/api/reservation/show",
     fetcher
@@ -110,7 +113,29 @@ export default function DashboardReservation() {
         </div>
       ),
     },
+    {
+      title: "Aksi",
+      key: "action",
+      render: (text: any, record: any) => (
+        <Space size="middle">
+          <Tooltip title="Detail Invoice">
+            <Button
+              icon={<EyeOutlined />}
+              onClick={() => rowClickHandler(record.external_id)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            />
+          </Tooltip>
+        </Space>
+      ),
+    },
   ];
+  const rowClickHandler = (external_id: string) => {
+    router.push(`/dashboard/reservation/${external_id}`);
+  };
 
   return (
     <div style={{ background: "#FFF", padding: "16px" }}>

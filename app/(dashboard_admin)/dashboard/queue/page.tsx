@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import useSWR from "swr";
 import {
   Alert,
@@ -13,6 +13,7 @@ import {
   Table,
   Typography,
   message,
+  Badge,
 } from "antd";
 import Cookies from "js-cookie";
 import dayjs from "dayjs";
@@ -65,6 +66,25 @@ export default function DashboardQueue() {
 
   const { data: queues, error, mutate } = useSWR<Queue[]>(fetchUrl, fetcher);
   const [searchText, setSearchText] = useState("");
+  const [queueDates, setQueueDates] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchQueueDates = async () => {
+      try {
+        const response = await fetch("/api/queue/dates", {
+          headers: { Authorization: `Bearer ${Cookies.get("token")}` },
+        });
+        if (!response.ok) throw new Error("Failed to fetch queue dates");
+        const dates = await response.json();
+        setQueueDates(dates);
+      } catch (error) {
+        console.error("Failed to fetch queue dates:", error);
+        message.error("Failed to fetch queue dates.");
+      }
+    };
+
+    fetchQueueDates();
+  }, []);
 
   const handleSearch = (e: any) => {
     setSearchText(e.target.value);
@@ -124,6 +144,23 @@ export default function DashboardQueue() {
     } else {
       router.push(`/dashboard/queue`);
     }
+  };
+
+  const dateRender = (current: any) => {
+    const currentDate = current.format("YYYY-MM-DD");
+    const isQueuedDate = queueDates.includes(currentDate);
+
+    return (
+      <div className="ant-picker-cell-inner">
+        {isQueuedDate ? (
+          <Badge status="success" dot>
+            {current.date()}
+          </Badge>
+        ) : (
+          current.date()
+        )}
+      </div>
+    );
   };
 
   const columns = [
@@ -207,6 +244,7 @@ export default function DashboardQueue() {
             placeholder="Pilih Tanggal"
             style={{ width: "100%" }}
             onChange={handleDateChange}
+            dateRender={dateRender}
           />
           <Input
             placeholder="Cari Pasien..."

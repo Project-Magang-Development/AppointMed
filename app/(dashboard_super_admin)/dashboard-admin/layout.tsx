@@ -35,7 +35,13 @@ const { Header, Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
 
+// Inisialisasi ikon untuk keadaan default dan keadaan aktif
+const dashboardIconDefault = <img src="/icons/dashboard.svg" alt="Dashboard" />;
+const dashboardIconActive = (
+  <img src="/icons/dashboard-active.svg" alt="Dashboard" />
+);
 const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [activeItem, setActiveItem] = useState("");
   const siderWidthCollapsed = 80;
   const siderWidthExpanded = 200;
   const router = useRouter();
@@ -63,13 +69,13 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 
   useEffect(() => {
-    if(!login){
-      if(!Cookies.get("tokenAdmin")){
-        router.push("/dashboard-admin/login")
+    if (!login) {
+      if (!Cookies.get("tokenAdmin")) {
+        router.push("/dashboard-admin/login");
       }
     }
-  },[router])
- 
+  }, [router]);
+
   const fetchDataWithLastChecked = async (
     endpoint: string,
     lastCheckedKey: string,
@@ -110,11 +116,28 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return <>{children}</>;
   }
 
+  useEffect(() => {
+    // Set activeItem berdasarkan pathname saat halaman dimuat atau berubah
+    setActiveItem(pathname);
+  }, [pathname]);
+  const handleClick = (key: any) => {
+    setActiveItem(key);
+  };
   const items: MenuItem[] = [
     {
       key: "/dashboard-admin",
-      icon: <DashboardOutlined />,
-      label: <Link href="/dashboard-admin">Dashboard</Link>,
+      icon:
+        activeItem === "/dashboard-admin"
+          ? dashboardIconActive
+          : dashboardIconDefault,
+      label: (
+        <Link
+          href="/dashboard-admin"
+          onClick={() => handleClick("/dashboard-admin")}
+        >
+          Dashboard
+        </Link>
+      ),
     },
     {
       key: "/dashboard-admin/merchant",
@@ -143,8 +166,6 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       .map((item: any) => item.key);
   };
 
-  const selectedKeys = determineSelectedKeys(pathname, items);
-
   const userMenu = (
     <Menu
       items={[
@@ -161,6 +182,14 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       ]}
     />
   );
+  // Hitung selectedKeys setelah items didefinisikan
+  const selectedKeys = determineSelectedKeys(pathname, items);
+
+  // Tambahkan properti style ke dalam items
+  const initialItems = items.map((item: any) => ({
+    ...item,
+    style: { color: selectedKeys.includes(item.key) ? "black" : "white" },
+  }));
 
   return (
     <Layout hasSider style={{ minHeight: "100vh" }}>
@@ -176,21 +205,22 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           position: "fixed",
           left: 0,
           zIndex: 999,
-          backgroundColor: "white",
+          backgroundColor: "#007E85",
+          color: "black",
           boxShadow: "8px 0 10px -5px rgba(0, 0, 0, 0.2)",
         }}
       >
         <div
           className="logo"
-          style={{ margin: "35px 10px", textAlign: "center" }}
+          style={{ margin: "35px 10px", textAlign: "center", color: "white" }}
         >
           {collapsed ? (
             <span>
-              <BankOutlined />
+              <img src="image/appointMed2.png" alt="" />
             </span>
           ) : (
             <Image
-              src="/logo.png"
+              src="/image/appointMed.png"
               alt="Company Logo"
               width={200}
               height={200}
@@ -198,9 +228,9 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           )}
         </div>
         <Menu
-          theme="light"
+          style={{ backgroundColor: "transparent" }}
           mode="inline"
-          items={items}
+          items={initialItems}
           selectedKeys={selectedKeys}
         />
       </Sider>
@@ -208,7 +238,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         style={{
           marginLeft: collapsed ? siderWidthCollapsed : siderWidthExpanded,
           transition: "margin 0.2s",
-          backgroundColor: "#F1F5F9",
+          backgroundColor: "white",
         }}
       >
         <Content
@@ -250,7 +280,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    color: "white",
+                    color: "black",
                   }}
                 >
                   <Flex

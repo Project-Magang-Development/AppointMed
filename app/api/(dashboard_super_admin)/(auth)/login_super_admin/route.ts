@@ -16,9 +16,7 @@ export async function POST(req: Request) {
     }
 
     const superAdmin = await prisma.superAdmin.findUnique({
-      where: {
-        email,
-      },
+      where: { email },
     });
 
     if (!superAdmin) {
@@ -35,7 +33,8 @@ export async function POST(req: Request) {
         admin_id: superAdmin.admin_id,
         email: superAdmin.email,
       },
-      process.env.JWT_SECRET as string
+      process.env.JWT_SECRET as string,
+      { expiresIn: "1h" } // Optional: Add an expiration time for the token
     );
 
     return NextResponse.json({ token });

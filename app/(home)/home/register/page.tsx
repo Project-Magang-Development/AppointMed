@@ -26,8 +26,9 @@ import { useSearchParams } from "next/navigation";
 
 import { useForm } from "antd/es/form/Form";
 import axios from "axios";
-import Navbar from "@/app/components/Navbar";
 import Scheduler from "schedules-appointmed";
+import FooterSection from "@/app/components/footer";
+import Navbar from "@/app/components/Navbar";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -217,13 +218,12 @@ const RegisterDashboard: React.FC = () => {
       throw error;
     }
   };
-
-  // function create merchant yang diisi dari input form
+  // Function to create a merchant filled from the input form
   const createMerchant = async (pending_id: string): Promise<any> => {
     try {
       const package_id = packageId;
       const payloadMerchant = {
-        pending_id: pending_id,
+        pending_id,
         plan: package_id,
         email: email,
       };
@@ -288,9 +288,9 @@ const RegisterDashboard: React.FC = () => {
       }
 
       if (packageData.package_price === 0) {
-        // const merchantResult = await createMerchant(
-        //   paymentResult.newPayment.pending_id
-        // );
+        const merchantResult = await createMerchant(
+          paymentResult.newPayment.pending_id
+        );
 
         console.log("Akun Merchant Dibuat");
       }
@@ -311,7 +311,7 @@ const RegisterDashboard: React.FC = () => {
         // router.push("/home");
       }
       setLoading(false);
-       router.push("/home/register/success");
+      router.push("/home/register/success");
     } catch (error) {
       console.error("Registration failed:", error);
       message.error("Registration failed.");
@@ -366,7 +366,7 @@ const RegisterDashboard: React.FC = () => {
       >
         {/*//Container untuk Layout Form  */}
         <img
-          src="/icons/wave10.svg"
+          src="/wave/wave9.svg"
           style={{
             objectFit: "cover",
             position: "absolute",
@@ -461,9 +461,11 @@ const RegisterDashboard: React.FC = () => {
               vertical
               style={{
                 backgroundColor: "white",
-                borderRadius: " 20px",
+                borderRadius: "20px",
                 height: "auto",
                 padding: "1rem",
+                boxShadow:
+                  "0 2px 4px 0 rgba(0,0,0,0.2), 0 4px 5px -1px rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12)",
               }}
             >
               <p style={{ fontSize: "20px", fontWeight: "bold" }}>
@@ -471,7 +473,7 @@ const RegisterDashboard: React.FC = () => {
               </p>
               <img
                 style={{ width: "100%" }}
-                src="/image/metode.png"
+                src="/image/pembayaran.png"
                 alt="metode"
               />
             </Flex>
@@ -704,6 +706,9 @@ const RegisterDashboard: React.FC = () => {
             </Form>
           </Flex>
         </Content>
+        <div style={{ zIndex: "2" }}>
+          <FooterSection />
+        </div>
       </Layout>
     </>
   );

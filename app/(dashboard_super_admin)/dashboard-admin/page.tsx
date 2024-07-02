@@ -125,7 +125,14 @@ export default function SuperAdminDashboard() {
       <Title level={3}>{currentMonthYearSentence}</Title>
       <Row gutter={16} style={{ margin: "20px 0" }}>
         {data.map((item, index) => (
-          <Col span={6} key={index}>
+          <Col
+            xs={24}
+            sm={12}
+            md={8}
+            lg={6}
+            key={index}
+            style={{ margin: "5px" }}
+          >
             <Card
               bordered={false}
               bodyStyle={{
@@ -151,7 +158,7 @@ export default function SuperAdminDashboard() {
                   {item.title}
                 </h3>
                 {React.cloneElement(item.icon, {
-                  style: { fontSize: "24px", color: "#8260FE" },
+                  style: { fontSize: "24px", color: "#007E85s" },
                 })}
               </div>
               <div
@@ -174,7 +181,7 @@ export default function SuperAdminDashboard() {
           </Col>
         ))}
         <Col span={24} style={{ marginTop: 40 }}>
-          <Col span={6}>
+          <Col xs={24} sm={12} md={6}>
             <Select
               defaultValue={selectedYear}
               style={{ width: 120, marginBottom: 20 }}
@@ -191,7 +198,7 @@ export default function SuperAdminDashboard() {
             </Select>
           </Col>
           <Row gutter={16} style={{ marginTop: 40 }}>
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Card
                 title={`Data Merchant Per Bulan Tahun ${selectedYear}`}
                 bordered={true}
@@ -222,7 +229,7 @@ export default function SuperAdminDashboard() {
                     <Line
                       type="monotone"
                       dataKey="Jumlah Merchant"
-                      stroke="#8884d8"
+                      stroke="#007E85"
                       activeDot={{ r: 8 }}
                       animationBegin={500}
                       animationDuration={2000}
@@ -231,7 +238,7 @@ export default function SuperAdminDashboard() {
                 </ResponsiveContainer>
               </Card>
             </Col>
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Card
                 title={`Data Pendapatan Per Bulan Tahun ${selectedYear}`}
                 bordered={true}
@@ -269,7 +276,7 @@ export default function SuperAdminDashboard() {
                     <Line
                       type="monotone"
                       dataKey="Total Pendapatan"
-                      stroke="#82ca9d"
+                      stroke="#007E85"
                       name="Total Pendapatan"
                       activeDot={{ r: 8 }}
                       animationBegin={500}
