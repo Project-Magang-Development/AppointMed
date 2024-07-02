@@ -3,8 +3,12 @@ import prisma from "@/lib/prisma";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import nodemailer from "nodemailer";
+import "dayjs/locale/id";
+import localeData from "dayjs/plugin/localeData";
 
 dayjs.extend(utc);
+dayjs.extend(localeData);
+dayjs.locale("id");
 
 export async function POST(req: NextRequest) {
   try {
@@ -119,17 +123,18 @@ export async function POST(req: NextRequest) {
       data: { used_storage_order: { increment: 1 } },
     });
 
-    const doctorEmail = schedule.doctor.email;
+    if (createdReservation.status == "PAID") {
+      const doctorEmail = schedule.doctor.email;
 
-    let transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
+      let transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
 
-    const emailHtml = `
+      const emailHtml = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -209,7 +214,7 @@ export async function POST(req: NextRequest) {
                 <label>Hari dan Tanggal:</label>
                 <div class="value">${dayjs
                   .utc(dateTime)
-                  .format("dddd, YYYY-MM-DD HH:mm")}</div>
+                  .format("HH:mm DD MMMM YYYY")}</div>
             </div>
             <div class="warning">
                 <p>⚠ Silahkan datang paling lambat 15 menit sebelum janji temu dengan dokter dimulai.</p>
@@ -221,19 +226,19 @@ export async function POST(req: NextRequest) {
 </html>
 `;
 
-    await transporter.sendMail({
-      from: '"AppointMed" <no-reply@gmail.com>',
-      to: patient_email,
-      subject: "Reservasi Pasien",
-      html: emailHtml,
-    });
+      await transporter.sendMail({
+        from: '"AppointMed" <no-reply@gmail.com>',
+        to: patient_email,
+        subject: "Reservasi Pasien",
+        html: emailHtml,
+      });
 
-    await transporter.sendMail({
-      from: '"AppointMed" <no-reply@gmail.com>',
-      to: doctorEmail,
-      subject: "Detail Reservasi Pasien",
-      text: `Detail Reservasi Pasien\n\nNo Reservasi: ${createdReservation.no_reservation}\nNama Pasien: ${patient_name}\nNomor Telepon: ${patient_phone}\nJenis Kelamin: ${patient_gender}\nJam: ${dateTime}`,
-      html: `
+      await transporter.sendMail({
+        from: '"AppointMed" <no-reply@gmail.com>',
+        to: doctorEmail,
+        subject: "Detail Reservasi Pasien",
+        text: `Detail Reservasi Pasien\n\nNo Reservasi: ${createdReservation.no_reservation}\nNama Pasien: ${patient_name}\nNomor Telepon: ${patient_phone}\nJenis Kelamin: ${patient_gender}\nJam: ${dateTime}`,
+        html: `
       <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-align: center; padding: 40px; color: #333;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;">
           <div style="background-color: #0275d8; padding: 20px 0;">
@@ -263,12 +268,13 @@ export async function POST(req: NextRequest) {
             <p style="font-size: 16px;">Jika Anda memiliki pertanyaan lebih lanjut, silakan hubungi kami.</p>
           </div>
           <div style="background-color: #f0f0f0; padding: 20px; font-size: 14px; text-align: left;">
-            <p>Salam Hangat,<br/>Tim AppointMeda</p>
+            <p>Salam Hangat,<br/>Tim AppointMed</p>
           </div>
         </div>
       </div>
       `,
-    });
+      });
+    }
 
     return new NextResponse(
       JSON.stringify({
@@ -293,34 +299,3 @@ export async function POST(req: NextRequest) {
     await prisma.$disconnect();
   }
 }
-
-// async function generateReservationNo(
-//   schedules_id: string,
-//   dateTime: string
-// ): Promise<string> {
-//   try {
-//     const dateTimeISO = dayjs.utc(dateTime).toISOString();
-
-//     const reservations = await prisma.reservation.findMany({
-//       where: {
-//         schedules_id,
-//         date_time: {
-//           gte: dayjs.utc(dateTime).startOf("day").toISOString(),
-//           lte: dayjs.utc(dateTime).endOf("day").toISOString(),
-//         },
-//       },
-//       orderBy: { date_time: "asc" },
-//     });
-
-//     const currentPosition = reservations.findIndex(
-//       (reservation) => reservation.date_time.toISOString() === dateTimeISO
-//     );
-
-//     const reservationNumber =
-//       currentPosition !== -1 ? currentPosition + 1 : reservations.length + 1;
-//     return `A${reservationNumber.toString().padStart(3, "0")}`;
-//   } catch (error) {
-//     console.error("Error generating reservation number:", error);
-//     throw new Error("Failed to generate reservation number");
-//   }
-// }

@@ -295,7 +295,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Link
               href="/dashboard/reservation"
               onClick={handleReservationClick}
-              style={{ color: "white", textDecoration: "none" }}
+              style={{ color: "black", textDecoration: "none" }}
             >
               Reservasi
             </Link>
@@ -319,7 +319,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Link
               href="/dashboard/queue"
               onClick={handleQueueClick}
-              style={{ color: "white", textDecoration: "none" }}
+              style={{ color: "black", textDecoration: "none" }}
             >
               Antrian
             </Link>
@@ -328,7 +328,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <Link
             href="/dashboard/queue"
             onClick={handleQueueClick}
-            style={{ color: "white", textDecoration: "none" }}
+            style={{ color: "inherit", textDecoration: "none" }}
           >
             Antrian
           </Link>

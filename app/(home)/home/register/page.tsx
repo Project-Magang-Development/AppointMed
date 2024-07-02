@@ -300,7 +300,6 @@ const RegisterDashboard: React.FC = () => {
         } else {
           console.log("Tidak ada invoice yang perlu dibuat");
         }
-        // router.push("/home");
       }
       setLoading(false);
       router.push("/home/register/success");
