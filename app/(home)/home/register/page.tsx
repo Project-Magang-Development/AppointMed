@@ -218,13 +218,12 @@ const RegisterDashboard: React.FC = () => {
       throw error;
     }
   };
-
-  // function create merchant yang diisi dari input form
+  // Function to create a merchant filled from the input form
   const createMerchant = async (pending_id: string): Promise<any> => {
     try {
       const package_id = packageId;
       const payloadMerchant = {
-        pending_id: pending_id,
+        pending_id,
         plan: package_id,
         email: email,
       };
@@ -289,9 +288,9 @@ const RegisterDashboard: React.FC = () => {
       }
 
       if (packageData.package_price === 0) {
-        // const merchantResult = await createMerchant(
-        //   paymentResult.newPayment.pending_id
-        // );
+        const merchantResult = await createMerchant(
+          paymentResult.newPayment.pending_id
+        );
 
         console.log("Akun Merchant Dibuat");
       }

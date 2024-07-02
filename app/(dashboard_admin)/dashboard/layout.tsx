@@ -81,7 +81,14 @@ const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
 
+// Inisialisasi ikon untuk keadaan default dan keadaan aktif
+const dashboardIconDefault = <img src="/icons/dashboard.svg" alt="Dashboard" />;
+const dashboardIconActive = (
+  <img src="/icons/dashboard-active.svg" alt="Dashboard" />
+);
+
 const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [activeItem, setActiveItem] = useState("");
   const siderWidthCollapsed = 80;
   const siderWidthExpanded = 200;
   const router = useRouter();
@@ -254,11 +261,27 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       .map((item: any) => item.key);
   };
 
+  useEffect(() => {
+    // Set activeItem berdasarkan pathname saat halaman dimuat atau berubah
+    setActiveItem(pathname);
+  }, [pathname]);
+
+  const handleClick = (key: any) => {
+    setActiveItem(key);
+  };
+
   const initialItems: MenuItem[] = [
     {
       key: "/dashboard",
-      icon: <DashboardOutlined />,
-      label: <Link href="/dashboard">Dashboard</Link>,
+      icon:
+        activeItem === "/dashboard"
+          ? dashboardIconActive
+          : dashboardIconDefault,
+      label: (
+        <Link href="/dashboard" onClick={() => handleClick("/dashboard")}>
+          Dashboard
+        </Link>
+      ),
     },
     {
       key: "/dashboard/doctor",
@@ -542,7 +565,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </Layout>
       <Modal
         title="Dokumentasi"
-        visible={selectedContent !== ""}
+        open={selectedContent !== ""}
         onCancel={() => setSelectedContent("")}
         footer={null}
       >
