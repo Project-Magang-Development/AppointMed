@@ -1112,7 +1112,7 @@ const Home = () => {
                 position: "relative",
                 width: "100%",
                 height: "auto",
-                marginBottom: "13.9rem",
+                marginBottom: "14.9rem",
               }}
             >
               <Flex
@@ -1221,9 +1221,7 @@ const Home = () => {
                     Temukan jawaban yang anda butuhkan
                   </p>
                 </Flex>
-                <Flex vertical>
-                  <Accordion />
-                </Flex>
+                <Accordion />
               </Flex>
             </Flex>
           </Section>

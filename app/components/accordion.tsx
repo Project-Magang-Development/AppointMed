@@ -78,7 +78,7 @@ const Accordion = () => {
       )}
       style={{
         border: "none",
-        width: "auto",
+        width: "100%",
       }}
     >
       {accordionData.map((item, index) => (
