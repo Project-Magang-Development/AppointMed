@@ -146,7 +146,7 @@ export default function SubscriptionPage() {
                 <Title level={5} style={{ marginBlock: 0 }}>
                   {item.package_name}
                 </Title>
-                {item.package_name.toLowerCase() !== "free" && (
+                {item.amount !== 0 && (
                   <Title level={5} style={{ marginBlock: 0, color: "#fa8c16" }}>
                     Harga Rp {item.amount.toLocaleString("id-ID")}
                   </Title>

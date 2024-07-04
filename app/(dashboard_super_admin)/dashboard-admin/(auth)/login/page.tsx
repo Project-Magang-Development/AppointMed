@@ -136,18 +136,6 @@ export default function LoginDashboardSuperAdmin() {
                 />
               </Form.Item>
               <Form.Item>
-                <Link
-                  href="/forget-password"
-                  style={{
-                    display: "block",
-                    textAlign: "right",
-                    color: "#007E85F",
-                  }}
-                >
-                  Lupa Password?
-                </Link>
-              </Form.Item>
-              <Form.Item>
                 <Button
                   style={{ backgroundColor: "#007E85", color: "white" }}
                   type="primary"

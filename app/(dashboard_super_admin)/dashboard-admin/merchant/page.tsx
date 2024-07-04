@@ -19,6 +19,7 @@ import Title from "antd/es/typography/Title";
 import Cookies from "js-cookie";
 import useSWR from "swr";
 import TableSkeleton from "@/app/components/tableSkeleton";
+import { useRouter } from "next/navigation";
 
 interface Package {
   package_id: string;
@@ -37,6 +38,7 @@ interface MerchantPendingPayment {
 }
 
 interface Merchant {
+  merchant_id: string;
   pending_id: string;
   status_subscriber: string;
   start_date: string;
@@ -67,6 +69,7 @@ export default function AdminMerchantDashboard() {
   const [form] = Form.useForm();
   const [emailContent, setEmailContent] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSearch = (e: any) => {
     setSearchText(e.target.value);
@@ -153,6 +156,10 @@ export default function AdminMerchantDashboard() {
     });
   }, [merchants, searchText]);
 
+  const showHistoryExpanse = (merchant_id: string) => {
+    router.push(`/dashboard-admin/merchant/${merchant_id}`);
+  };
+
   if (error) {
     message.error("Failed to fetch merchants.");
     console.error("Error fetching merchants:", error);
@@ -224,6 +231,21 @@ export default function AdminMerchantDashboard() {
       dataIndex: "available_balance",
       key: "available_balance",
       render: (balance: number) => `Rp ${balance.toLocaleString()}`,
+    },
+    {
+      title: "Aksi",
+      dataIndex: "action",
+      key: "action",
+      render: (_: any, merchant: Merchant) => (
+        <Space>
+          <Button
+            style={{ backgroundColor: "#007E85", color: "white" }}
+            onClick={() => showHistoryExpanse(merchant.merchant_id)}
+          >
+            History Penarikan
+          </Button>
+        </Space>
+      ),
     },
   ];
 
