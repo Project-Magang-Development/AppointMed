@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useEffect, useState } from "react";
 import { Card, Col, Row, Spin, Alert, Button, message, Flex } from "antd";
@@ -46,8 +46,11 @@ const RenewPage: React.FC = () => {
   // sorting package
   useEffect(() => {
     if (packages) {
-      // Urutkan data berdasarkan harga dari terendah ke tertinggi
-      const sorted = [...packages].sort(
+      // Filter out the Free package and sort the remaining packages by price
+      const filteredPackages = packages.filter(
+        (pkg) => pkg.package_price !== 0
+      );
+      const sorted = filteredPackages.sort(
         (a, b) => a.package_price - b.package_price
       );
       setSortedPackages(sorted);
@@ -57,7 +60,7 @@ const RenewPage: React.FC = () => {
   useEffect(() => {
     if (packages) {
       const filteredPackages = packages.filter(
-        (pkg) => pkg.package_name.toLowerCase() !== "free"
+        (pkg) => pkg.package_tag.toLowerCase() !== "free"
       );
       const featureList = filteredPackages.map((pkg) =>
         pkg.package_feature ? pkg.package_feature.split(",") : []

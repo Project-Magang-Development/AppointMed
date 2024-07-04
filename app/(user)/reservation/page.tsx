@@ -16,6 +16,7 @@ import {
   Spin,
   Flex,
   Select,
+  notification,
 } from "antd";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -171,9 +172,14 @@ export default function FormPage() {
       if (response.ok) {
         setLoading(false);
         setReservationData(data.data);
-        setShowInvoice(true); // Show invoice page
+        setShowInvoice(true); 
+        notification.success({
+          message: "Reservation Success!"
+        })
       } else {
-        message.error(data.error || "Failed to create reservation");
+       notification.error({
+         message: "Reservation Failed!",
+       });
         console.error("Error:", data);
       }
     } catch (error) {

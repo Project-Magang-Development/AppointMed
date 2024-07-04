@@ -163,7 +163,7 @@ export default function AdminDashboard() {
   const currentMonthYearSentence = ` ${currentMonth} - ${currentYear}`;
   const [currentTime, setCurrentTime] = useState(new Date());
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [form] = useForm<FormValue>();
+  const [form] = Form.useForm<FormValue>();
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const merchantName = useMerchantName();
   const merchantEmail = useMerchantEmail();
@@ -177,29 +177,29 @@ export default function AdminDashboard() {
 
   // ? finance report logic
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // Current month by default
-  useEffect(() => {
-    const fetchBalance = async (month: any, year: any) => {
-      const token = Cookies.get("token");
-      const response = await fetch(
-        `/api/merchant_balance?month=${month}&year=${year}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Response data:", data);
-        setIncomeByMonth(data.incomeByMonth);
-        setExpenseByMonth(data.expenseByMonth);
-        setBalance(data.balance || 0); // Ensure consistency with property name
-      } else {
-        console.error("Failed to fetch balance");
+  const fetchBalance = async (month: any, year: any) => {
+    const token = Cookies.get("token");
+    const response = await fetch(
+      `/api/merchant_balance?month=${month}&year=${year}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    };
+    );
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Response data:", data);
+      setIncomeByMonth(data.incomeByMonth);
+      setExpenseByMonth(data.expenseByMonth);
+      setBalance(data.balance || 0); // Ensure consistency with property name
+    } else {
+      console.error("Failed to fetch balance");
+    }
+  };
 
+  useEffect(() => {
     fetchBalance(selectedMonth, selectedYear);
   }, [selectedMonth, selectedYear]);
 
@@ -426,6 +426,7 @@ export default function AdminDashboard() {
         message.error("Gagal melakukan update balance");
         throw new Error("Failed to update balance");
       }
+      await fetchBalance(selectedMonth, selectedYear);
       setIsReportModalVisible(false);
       setConfirmLoading(false);
     } catch (error) {
@@ -440,6 +441,7 @@ export default function AdminDashboard() {
       console.log("Form Value:", formValue);
 
       setConfirmLoading(true);
+      form.resetFields();
       await performPayout(formValue);
       setIsReportModalVisible(false);
       setConfirmLoading(false);

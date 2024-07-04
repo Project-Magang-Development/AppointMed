@@ -65,7 +65,7 @@ export async function POST(req: Request) {
       merchant.used_storage_vehicle >= merchant.package.count_doctor
     ) {
       return new NextResponse(
-        JSON.stringify({ error: "Vehicle limit exceeded" }),
+        JSON.stringify({ error: "Doctor limit exceeded" }),
         {
           status: 401,
           headers: { "Content-Type": "application/json" },

@@ -219,6 +219,12 @@ export default function AdminMerchantDashboard() {
       dataIndex: ["MerchantPayment", "MerchantPendingPayment", "merchant_city"],
       key: "merchant_city",
     },
+    {
+      title: "Saldo Merchant",
+      dataIndex: "available_balance",
+      key: "available_balance",
+      render: (balance: number) => `Rp ${balance.toLocaleString()}`,
+    },
   ];
 
   return (

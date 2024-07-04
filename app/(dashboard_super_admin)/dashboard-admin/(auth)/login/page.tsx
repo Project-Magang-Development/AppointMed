@@ -49,7 +49,10 @@ export default function LoginDashboardSuperAdmin() {
       setLoading(false);
       router.push("/dashboard-admin");
     } catch (error) {
-      message.error("Login failed.");
+      setLoading(false)
+     notification.error({
+      message: "Login Gagal!"
+     })
     }
   };
 
