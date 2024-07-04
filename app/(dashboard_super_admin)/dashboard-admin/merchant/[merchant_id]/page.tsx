@@ -42,12 +42,17 @@ export default function HistoryExpanse() {
 
   const merchantName =
     Array.isArray(showDetail) && showDetail.length > 0
-      ? showDetail[0].merchant.merchant_email
+      ? showDetail[0].merchant.merchant_name
       : "";
 
   const paginatedData = showDetail.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
+  );
+
+  const totalAmount = showDetail.reduce(
+    (sum: any, detail: any) => sum + detail.amount,
+    0
   );
 
   return (
@@ -56,22 +61,29 @@ export default function HistoryExpanse() {
       {showDetail.length === 0 ? (
         <Alert message="Tidak Ada Data Penarikan" type="info" />
       ) : (
-        <Row gutter={[16, 16]} justify="center">
-          {Array.isArray(paginatedData) &&
-            paginatedData.map((detail: any) => (
-              <Col span={24} key={detail.id}>
-                <Card>
-                  <Title level={4}>
-                    Jumlah: Rp {detail.amount.toLocaleString()}
-                  </Title>
-                  <Text>
-                    Ditarik:{" "}
-                    {moment(detail.created_at).format("HH:mm, DD MMMM YYYY")}
-                  </Text>
-                </Card>
-              </Col>
-            ))}
-        </Row>
+        <div>
+          <Row gutter={[16, 16]} justify="center">
+            {Array.isArray(paginatedData) &&
+              paginatedData.map((detail: any) => (
+                <Col span={24} key={detail.id}>
+                  <Card>
+                    <Title level={4}>
+                      Jumlah: Rp {detail.amount.toLocaleString()}
+                    </Title>
+                    <Text>
+                      Ditarik:{" "}
+                      {moment(detail.created_at).format("HH:mm, DD MMMM YYYY")}
+                    </Text>
+                  </Card>
+                </Col>
+              ))}
+          </Row>
+          <div style={{ marginTop: "20px", textAlign: "center" }}>
+            <Title level={4}>
+              Total Penarikan: Rp {totalAmount.toLocaleString()}
+            </Title>
+          </div>
+        </div>
       )}
       <Pagination
         current={currentPage}

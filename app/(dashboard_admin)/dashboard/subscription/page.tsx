@@ -50,14 +50,17 @@ export default function SubscriptionPage() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = subscriptionDetail.subscriptionDetail?.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
+
+  const filteredItems = subscriptionDetail.subscriptionDetail?.filter(
+    (item: any, index: any, self: any) =>
+      index === self.findIndex((i: any) => i.package_id === item.package_id)
+  );
+
+  const currentItems = filteredItems?.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <>
@@ -80,8 +83,9 @@ export default function SubscriptionPage() {
           {moment(subscriptionNow.subscriptionNow.end_date).format("LL")}{" "}
         </h1>
         <Button
+          type="primary"
           icon={<RiseOutlined />}
-          style={{ marginTop: 20, color: "#FFF", backgroundColor: "#007E85" }}
+          style={{ marginTop: 20 }}
           onClick={() => {
             router.push("/home/renew");
           }}
@@ -173,7 +177,7 @@ export default function SubscriptionPage() {
       <Pagination
         current={currentPage}
         pageSize={itemsPerPage}
-        total={subscriptionDetail.subscriptionDetail?.length}
+        total={filteredItems?.length}
         onChange={handlePageChange}
         style={{ marginTop: 20, textAlign: "center" }}
       />
