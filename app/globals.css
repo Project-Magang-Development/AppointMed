@@ -116,3 +116,11 @@
     display: none !important;
   }
 }
+
+.ant-pagination-item-active {
+  border: 1px solid #007e85 !important;
+}
+
+.ant-pagination-item-active a {
+  color: #007e85 !important;
+}

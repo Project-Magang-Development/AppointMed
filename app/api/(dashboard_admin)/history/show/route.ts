@@ -33,6 +33,9 @@ export async function GET(req: Request) {
       where: {
         merchant_id: decoded.merchantId,
       },
+      include: {
+        payout: true,
+      },
     });
 
     return NextResponse.json({ status: 200, history });
