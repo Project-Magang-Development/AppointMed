@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
 import Scheduler from "schedules-appointmed";
 
 export default function Testing() {
-    return (
-      <Scheduler apiKey="0b017a8108bbc943b933e12fdd9dd619c964c30cb6bd4053ec354f850ffd7c24" />
-    );
+  return (
+    <Scheduler apiKey="56732a8c26bcc5816716e5eec86deea42d6c247774c749bdedd342eb68d533fd" />
+  );
 }

@@ -124,6 +124,8 @@ const fetcher = (url: string) =>
 
 export default function AdminDashboard() {
   const [selectedYear, setSelectedYear] = useState(dayjs().year());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // Current month by default
+
   const {
     data: countData,
     error: countError,
@@ -155,6 +157,12 @@ export default function AdminDashboard() {
     error: revenuePerMonthError,
     isLoading: revenuePerMonthLoading,
   } = useSWR(`/api/payment/${selectedYear}`, fetcher);
+
+  const { data, error } = useSWR(
+    `/api/merchant_balance?month=${selectedMonth}&year=${selectedYear}`,
+    fetcher
+  );
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isReportModalVisible, setIsReportModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<EventDetails | null>(null);
@@ -163,7 +171,7 @@ export default function AdminDashboard() {
   const currentMonthYearSentence = ` ${currentMonth} - ${currentYear}`;
   const [currentTime, setCurrentTime] = useState(new Date());
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [form] = useForm<FormValue>();
+  const [form] = Form.useForm<FormValue>();
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const merchantName = useMerchantName();
   const merchantEmail = useMerchantEmail();
@@ -174,34 +182,60 @@ export default function AdminDashboard() {
   const [expenseByMonth, setExpenseByMonth] = useState<Record<number, number>>(
     {}
   );
+  const tick = async () => {
+    setCurrentTime(new Date());
+    await mutate();
+  };
+  useEffect(() => {
+    const timerID = setInterval(() => {
+      tick();
+    }, 1000); // Memanggil tick setiap detik
+
+    return () => {
+      clearInterval(timerID); // Bersihkan interval ketika komponen unmount
+    };
+  }, []);
+
+  // mengambil income dan expense untuk ditampilkan
+  useEffect(() => {
+    if (data) {
+      setIncomeByMonth(data.incomeByMonth);
+      setExpenseByMonth(data.expenseByMonth);
+      setBalance(data.balance || 0);
+    }
+  }, [data]);
+
+  if (error) return <div>Error fetching data</div>;
+
+  if (!data) return <DashboardSkeleton />;
 
   // ? finance report logic
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // Current month by default
-  useEffect(() => {
-    const fetchBalance = async (month: any, year: any) => {
-      const token = Cookies.get("token");
-      const response = await fetch(
-        `/api/merchant_balance?month=${month}&year=${year}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Response data:", data);
-        setIncomeByMonth(data.incomeByMonth);
-        setExpenseByMonth(data.expenseByMonth);
-        setBalance(data.balance || 0); // Ensure consistency with property name
-      } else {
-        console.error("Failed to fetch balance");
-      }
-    };
+  // const fetchBalance = async (month: any, year: any) => {
+  //   const token = Cookies.get("token");
+  //   const response = await fetch(
+  //     `/api/merchant_balance?month=${month}&year=${year}`,
+  //     {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     }
+  //   );
 
-    fetchBalance(selectedMonth, selectedYear);
-  }, [selectedMonth, selectedYear]);
+  //   if (response.ok) {
+  //     const data = await response.json();
+  //     console.log("Response data:", data);
+  //     setIncomeByMonth(data.incomeByMonth);
+  //     setExpenseByMonth(data.expenseByMonth);
+  //     setBalance(data.balance || 0);
+  //   } else {
+  //     console.error("Failed to fetch balance");
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchBalance(selectedMonth, selectedYear);
+  // }, [selectedMonth, selectedYear]);
 
   const handleEventClick = (clickInfo: any) => {
     setSelectedEvent({
@@ -274,16 +308,6 @@ export default function AdminDashboard() {
     );
   };
 
-  useEffect(() => {
-    const timerID = setInterval(() => {
-      tick();
-    }, 1000); // Memanggil tick setiap detik
-
-    return () => {
-      clearInterval(timerID); // Bersihkan interval ketika komponen unmount
-    };
-  }, []);
-
   // useEffect(() => {
   //   const timerID = setInterval(() => {
   //     tick();
@@ -293,11 +317,6 @@ export default function AdminDashboard() {
   //     clearInterval(timerID);
   //   };
   // }, []);
-
-  const tick = async () => {
-    setCurrentTime(new Date());
-    await mutate();
-  };
 
   if (countError || showQueueError)
     return <Alert message="Error loading data!" type="error" />;
@@ -357,18 +376,30 @@ export default function AdminDashboard() {
       "base64"
     )}`;
 
-    const generateId = () => {
-      return Math.random().toString(36).substring(2, 9);
+    const generateId = () =>
+      `disb-${Math.random().toString(36).substring(2, 9)}`;
+
+    // Generate unique key for payout
+    const generateIdempotencyKey = () => {
+      const length = 20; // Panjang kunci yang diinginkan
+      const characters =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let idempotencyKey = "IdKey-";
+
+      for (let i = 0; i < length; i++) {
+        idempotencyKey += characters.charAt(
+          Math.floor(Math.random() * characters.length)
+        );
+      }
+
+      return idempotencyKey;
     };
 
     try {
-      // Get available_balance from your server
       const token = Cookies.get("token");
       const merchantResponse = await fetch("/api/merchant_balance", {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!merchantResponse.ok) {
@@ -378,54 +409,63 @@ export default function AdminDashboard() {
       const merchantData = await merchantResponse.json();
       const availableBalance = merchantData.available_balance;
 
-      // Check if available_balance is less than payout amount
       const payoutAmount = Number(formValue.amount);
       if (availableBalance < payoutAmount) {
         message.error("Saldo anda tidak cukup");
-        return; // Stop the function execution if balance is insufficient
+        return;
       }
 
+      // Generate reference_id once
+      const referenceId = generateId();
+
+      // Simpan transaksi payout terlebih dahulu
+      const savePayoutResponse = await fetch("/api/payment/withdraw", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount: payoutAmount,
+          reference_id: referenceId,
+        }),
+      });
+
+      if (!savePayoutResponse.ok) {
+        message.error("Gagal menyimpan transaksi payout");
+        throw new Error("Failed to save payout transaction");
+      }
+
+      console.log("ini token :", token);
+
       const payoutData = {
-        reference_id: generateId(),
+        reference_id: referenceId,
         channel_code: formValue.banks,
         channel_properties: {
           account_number: formValue.rekening,
           account_holder_name: merchantName,
         },
-        amount: payoutAmount, // Use available_balance as the payout amount
+        amount: payoutAmount,
         description: "Pencairan Dana",
         currency: "IDR",
-        receipt_notification: {
-          // TODO: sesuaikan email nya
-          email_to: [merchantEmail],
-        },
+        receipt_notification: { email_to: [merchantEmail] },
       };
 
       const response = await axios.post(endpoint, payoutData, {
         headers: {
           Authorization: basicAuthHeader,
           "Content-Type": "application/json",
-          "Idempotency-Key": generateId(), // Ensure unique idempotency key
+          "Idempotency-Key": generateIdempotencyKey(),
         },
       });
       message.success({ content: "Pencairan Dana Berhasil", duration: 6 });
 
       console.log("Payout successful:", response.data);
+      console.log("Payout reference_id:", response.data.reference_id);
 
-      // Update available_balance on your server
-      const updateResponse = await fetch("/api/payment/withdraw", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ amount: payoutAmount }),
-      });
+      // Fetch updated balance after successful payout
+      // await fetchBalance(selectedMonth, selectedYear);
 
-      if (!updateResponse.ok) {
-        message.error("Gagal melakukan update balance");
-        throw new Error("Failed to update balance");
-      }
       setIsReportModalVisible(false);
       setConfirmLoading(false);
     } catch (error) {
@@ -441,6 +481,8 @@ export default function AdminDashboard() {
 
       setConfirmLoading(true);
       await performPayout(formValue);
+
+      form.resetFields();
       setIsReportModalVisible(false);
       setConfirmLoading(false);
     } catch (error) {
@@ -740,9 +782,9 @@ export default function AdminDashboard() {
         </Modal>
         <div>
           <Title level={3}>{currentMonthYearSentence}</Title>
-          <Flex justify="space-between">
-            <Flex gap={16} style={{ marginBottom: 30, width: "100%" }}>
-              {stats.map((item, index) => (
+          <Row gutter={[16, 16]} style={{ marginBottom: 30 }}>
+            {stats.map((item, index) => (
+              <Col xs={24} sm={12} md={8} lg={6} key={index}>
                 <Flex
                   gap={20}
                   style={{
@@ -754,53 +796,43 @@ export default function AdminDashboard() {
                     boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
                     fontFamily: "Lato",
                   }}
-                  key={index}
                 >
-                  <Flex gap={20}>
-                    <Flex
-                      justify="space-between"
-                      style={{
-                        width: "100%",
-                      }}
-                    >
-                      {React.cloneElement(item.icon, {
-                        style: { fontSize: "24px", color: "#8260FE" },
-                      })}
-                    </Flex>
+                  <Flex justify="space-between" style={{ width: "25%" }}>
+                    {React.cloneElement(item.icon, {
+                      style: { fontSize: "24px", color: "#8260FE" },
+                    })}
                   </Flex>
-                  <Flex vertical>
+                  <Flex vertical gap={10} style={{ width: "100%" }}>
                     <h3 style={{ margin: 0, fontWeight: "bold" }}>
                       {item.title}
                     </h3>
-
-                    <Statistic
-                      value={item.value}
-                      valueStyle={{
-                        color: "#AEB9E1",
-                        fontSize: "19px",
-                        fontFamily: "Lato",
-                      }}
-                    />
-                    {/* //?Button Pencairan Dana */}
-                    {item.hasButton && (
-                      <Detail title="Laporan Keuangan">
+                    <Flex gap={10}>
+                      <Statistic
+                        value={item.value}
+                        valueStyle={{
+                          color: "#AEB9E1",
+                          fontSize: "19px",
+                          fontFamily: "Lato",
+                        }}
+                      />
+                      {item.hasButton && (
                         <Button
                           size="small"
                           icon={<ArrowRightOutlined />}
                           style={{ backgroundColor: "white" }}
                           onClick={showModal}
                         />
-                      </Detail>
-                    )}
+                      )}
+                    </Flex>
                   </Flex>
                 </Flex>
-              ))}
-            </Flex>
-          </Flex>
+              </Col>
+            ))}
+          </Row>
 
-          <Flex justify="space-between">
-            <Col flex="2">
-              <Card bordered={false} style={{ marginRight: 8 }}>
+          <Row gutter={[16, 16]}>
+            <Col xs={24} md={16}>
+              <Card bordered={false}>
                 {renderModal()}
                 <FullCalendar
                   plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -830,8 +862,8 @@ export default function AdminDashboard() {
                 />
               </Card>
             </Col>
-            <Col flex="1">
-              <Card title="Antrian Pasien" style={{ marginLeft: 8 }}>
+            <Col xs={24} md={8}>
+              <Card title="Antrian Pasien">
                 {showQueue && showQueue.length > 0 ? (
                   showQueue.map((queue: any, index: any) => (
                     <div
@@ -876,7 +908,8 @@ export default function AdminDashboard() {
                 )}
               </Card>
             </Col>
-          </Flex>
+          </Row>
+
           <Select
             defaultValue={selectedYear}
             style={{ width: 120, marginTop: 20 }}
@@ -891,76 +924,81 @@ export default function AdminDashboard() {
               </Option>
             ))}
           </Select>
-          <Flex justify="space-between" style={{ marginTop: 20 }}>
-            <Card style={{ flex: 1, marginRight: 10 }}>
-              <Title
-                level={3}
-                style={{ textAlign: "center", color: "#007e85" }}
-              >
-                Jumlah Pasien {selectedYear}
-              </Title>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={queuePerMonths}>
-                  <CartesianGrid strokeDasharray="5 5" />
-                  <XAxis dataKey="month" />
-                  <YAxis
-                    allowDecimals={false}
-                    domain={["dataMin - 1", "dataMax + 1"]}
-                    label={{
-                      value: "Jumlah",
-                      angle: -90,
-                      position: "insideLeft",
-                    }}
-                  />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    dataKey="Jumlah Pasien"
-                    stroke="#007e85"
-                    activeDot={{ r: 8 }}
-                    animationBegin={500}
-                    animationDuration={2000}
-                    type="monotone"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </Card>
-            <Card style={{ flex: 1, marginLeft: 10 }}>
-              <Title
-                level={3}
-                style={{ textAlign: "center", color: "#007e85" }}
-              >
-                Jumlah Pendapatan {selectedYear}
-              </Title>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={revenuePerMonths}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis
-                    tickFormatter={(value) =>
-                      `${(value / 1000000).toFixed(1)} Jt`
-                    }
-                    domain={["dataMin", "dataMax"]}
-                    label={{
-                      value: "Total (Jt)",
-                      angle: -90,
-                      position: "insideLeft",
-                    }}
-                  />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    dataKey="Jumlah Pendapatan"
-                    stroke="#007e85"
-                    activeDot={{ r: 8 }}
-                    animationBegin={500}
-                    animationDuration={2000}
-                    type="monotone"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </Card>
-          </Flex>
+
+          <Row gutter={[16, 16]} style={{ marginTop: 20 }}>
+            <Col xs={24} md={12}>
+              <Card>
+                <Title
+                  level={3}
+                  style={{ textAlign: "center", color: "#007e85" }}
+                >
+                  Jumlah Pasien {selectedYear}
+                </Title>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={queuePerMonths}>
+                    <CartesianGrid strokeDasharray="5 5" />
+                    <XAxis dataKey="month" />
+                    <YAxis
+                      allowDecimals={false}
+                      domain={["dataMin - 1", "dataMax + 1"]}
+                      label={{
+                        value: "Jumlah",
+                        angle: -90,
+                        position: "insideLeft",
+                      }}
+                    />
+                    <Tooltip />
+                    <Legend />
+                    <Line
+                      dataKey="Jumlah Pasien"
+                      stroke="#007e85"
+                      activeDot={{ r: 8 }}
+                      animationBegin={500}
+                      animationDuration={2000}
+                      type="monotone"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Card>
+            </Col>
+            <Col xs={24} md={12}>
+              <Card>
+                <Title
+                  level={3}
+                  style={{ textAlign: "center", color: "#007e85" }}
+                >
+                  Jumlah Pendapatan {selectedYear}
+                </Title>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={revenuePerMonths}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis
+                      tickFormatter={(value) =>
+                        `${(value / 1000000).toFixed(1)} Jt`
+                      }
+                      domain={["dataMin", "dataMax"]}
+                      label={{
+                        value: "Total (Jt)",
+                        angle: -90,
+                        position: "insideLeft",
+                      }}
+                    />
+                    <Tooltip />
+                    <Legend />
+                    <Line
+                      dataKey="Jumlah Pendapatan"
+                      stroke="#007e85"
+                      activeDot={{ r: 8 }}
+                      animationBegin={500}
+                      animationDuration={2000}
+                      type="monotone"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Card>
+            </Col>
+          </Row>
         </div>
       </>
     </SWRConfig>

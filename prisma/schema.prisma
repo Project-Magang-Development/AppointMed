@@ -41,6 +41,16 @@ model Merchant {
   Expense                Expense[]
 }
 
+model Payout {
+  id           String    @id @default(uuid())
+  reference_id String    @unique
+  merchant_id  String
+  amount       Int
+  status       String    @default("PENDING") // Bisa "PENDING", "SUCCEEDED", "FAILED", "REVERSED"
+  createdAt    DateTime  @default(now())
+  Expense      Expense[]
+}
+
 model Income {
   id          String   @id @default(uuid())
   merchant_id String
@@ -50,11 +60,13 @@ model Income {
 }
 
 model Expense {
-  id          String   @id @default(uuid())
-  merchant_id String
-  amount      Int
-  created_at  DateTime @default(now())
-  merchant    Merchant @relation(fields: [merchant_id], references: [merchant_id])
+  id           String   @id @default(uuid())
+  merchant_id  String
+  reference_id String
+  amount       Int
+  created_at   DateTime @default(now())
+  merchant     Merchant @relation(fields: [merchant_id], references: [merchant_id])
+  payout       Payout   @relation(fields: [reference_id], references: [reference_id])
 }
 
 model MerchantPayment {

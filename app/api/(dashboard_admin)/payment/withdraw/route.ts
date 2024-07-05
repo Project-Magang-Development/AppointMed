@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function PUT(req: NextRequest) {
-  if (req.method !== "PUT") {
+export async function POST(req: NextRequest) {
+  if (req.method !== "POST") {
     return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
   }
 
@@ -29,62 +29,29 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const { amount } = await req.json();
+    const { amount, reference_id } = await req.json();
 
-    if (!amount) {
+    if (!amount || !reference_id) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    const merchant = await prisma.merchant.findUnique({
-      where: { merchant_id: decoded.merchantId },
+    // Simpan transaksi dengan status PENDING
+    const payout = await prisma.payout.create({
+      data: {
+        reference_id,
+        merchant_id: decoded.merchantId,
+        amount,
+        status: "PENDING",
+      },
     });
 
-    if (!merchant) {
-      return NextResponse.json(
-        { error: "Merchant not found" },
-        { status: 404 }
-      );
-    }
-
-    if (merchant.available_balance < amount) {
-      return NextResponse.json(
-        { error: "Insufficient balance" },
-        { status: 400 }
-      );
-    }
-
-    // Catat expense dan perbarui available_balance
-    try {
-      const expense = await prisma.expense.create({
-        data: {
-          merchant_id: decoded.merchantId,
-          amount,
-        },
-      });
-
-      await prisma.merchant.update({
-        where: { merchant_id: decoded.merchantId },
-        data: {
-          available_balance: {
-            decrement: amount,
-          },
-        },
-      });
-
-      console.log("Expense recorded successfully:", expense);
-    } catch (expenseError) {
-      console.error("Failed to record expense:", expenseError);
-      return NextResponse.json(
-        { error: "Failed to record expense" },
-        { status: 500 }
-      );
-    }
+    console.log("Payout transaction created:", payout);
 
     return NextResponse.json(
-      { message: "Balance updated successfully" },
+      { message: "Payout initiated successfully", payout },
       { status: 200 }
     );
   } catch (error) {

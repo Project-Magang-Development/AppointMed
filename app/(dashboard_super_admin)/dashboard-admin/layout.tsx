@@ -54,6 +54,10 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  useEffect(() => {
+    // Set activeItem berdasarkan pathname saat halaman dimuat atau berubah
+    setActiveItem(pathname);
+  }, [pathname]);
   const disableSidebar = [
     "/dashboard-admin/login",
     "/dashboard-admin/register",
@@ -116,10 +120,6 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return <>{children}</>;
   }
 
-  useEffect(() => {
-    // Set activeItem berdasarkan pathname saat halaman dimuat atau berubah
-    setActiveItem(pathname);
-  }, [pathname]);
   const handleClick = (key: any) => {
     setActiveItem(key);
   };

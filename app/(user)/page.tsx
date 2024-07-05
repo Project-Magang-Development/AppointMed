@@ -59,10 +59,10 @@ const Schedules: React.FC<ScheduleProps> = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [times, setTimes] = useState<TimeSlot[]>([]);
   const [selectedScheduleId, setSelectedScheduleId] = useState<string>("");
-  const apiBaseUrl = "https://4ae4-182-253-75-201.ngrok-free.app";
-  // const apiBaseUrl = "http://localhost:3000";
+  // const apiBaseUrl = "https://0635-114-122-133-77.ngrok-free.app";
+  const apiBaseUrl = "http://localhost:3000";
   const apiKey =
-    "56732a8c26bcc5816716e5eec86deea42d6c247774c749bdedd342eb68d533fd";
+    "c3c7cc499fb570a9d01496d34eee89d7fdb43388358b8b59c7f8b8f8601ba0e1";
 
   const fetcher = (url: string) =>
     fetch(url, {

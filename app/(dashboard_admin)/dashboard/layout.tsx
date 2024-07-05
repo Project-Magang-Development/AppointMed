@@ -194,6 +194,9 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    setActiveItem(pathname);
+  }, [pathname]);
 
   useEffect(() => {
     fetchDataWithLastChecked(
@@ -261,11 +264,6 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       .map((item: any) => item.key);
   };
 
-  useEffect(() => {
-    // Set activeItem berdasarkan pathname saat halaman dimuat atau berubah
-    setActiveItem(pathname);
-  }, [pathname]);
-
   const handleClick = (key: any) => {
     setActiveItem(key);
   };
@@ -330,7 +328,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <Link
             href="/dashboard/queue"
             onClick={handleQueueClick}
-            style={{ color: "white", textDecoration: "none" }}
+            style={{ color: "inherit", textDecoration: "none" }}
           >
             Antrian
           </Link>
