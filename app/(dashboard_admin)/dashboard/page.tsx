@@ -135,6 +135,10 @@ export default function AdminDashboard() {
     mutate,
     isLoading,
   } = useSWR("/api/queue/showQueueDashboard", fetcher);
+  const { data: showQueueCalendar, error: showQueueCalendarError } = useSWR(
+    "/api/queue/showQueueCalendar",
+    fetcher
+  );
   const {
     data: totalAmount,
     error: totalAmountError,
@@ -485,15 +489,15 @@ export default function AdminDashboard() {
       icon: <img src="/icons/waktu.svg" alt="" />,
     },
     {
+      title: "Antrian Hari Ini",
+      value: totalPatient,
+      icon: <img src="/icons/antrian.svg" alt="" />,
+    },
+    {
       title: "Pendapatan",
       value: `Rp. ${totalRevenue.toLocaleString()}`,
       icon: <img src="/icons/pendapatan.svg" alt="" />,
       hasButton: true,
-    },
-    {
-      title: "Antrian Hari Ini",
-      value: totalPatient,
-      icon: <img src="/icons/antrian.svg" alt="" />,
     },
   ];
 
@@ -810,8 +814,8 @@ export default function AdminDashboard() {
                   locales={allLocales}
                   locale="id"
                   events={
-                    showQueue
-                      ? showQueue.map((queue: any) => ({
+                    showQueueCalendar
+                      ? showQueueCalendar.map((queue: any) => ({
                           title: `${queue.Reservation.patient_name}`,
                           start: dayjs
                             .utc(queue.Reservation.date_time)

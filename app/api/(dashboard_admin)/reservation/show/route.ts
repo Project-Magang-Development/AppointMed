@@ -33,7 +33,7 @@ export async function GET(req: Request) {
         merchant_id: decoded.merchantId,
       },
       orderBy: {
-        reservation_id: "desc",
+        date_time: "asc",
       },
       include: {
         Schedule: {

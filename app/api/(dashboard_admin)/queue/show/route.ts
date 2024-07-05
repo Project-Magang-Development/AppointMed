@@ -64,7 +64,9 @@ export async function GET(req: Request) {
         },
       },
       orderBy: {
-        queue_id: "desc",
+        Reservation: {
+          date_time: "asc",
+        },
       },
     });
 
