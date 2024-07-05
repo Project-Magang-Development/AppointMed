@@ -24,6 +24,7 @@ export async function GET(
         merchant_id: merchant_id,
       },
       include: {
+        payout: true,
         merchant: true,
       },
     });
