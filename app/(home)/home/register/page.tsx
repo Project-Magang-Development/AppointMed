@@ -310,37 +310,6 @@ const RegisterDashboard: React.FC = () => {
     }
   };
 
-  // const onFinish = async (values: any) => {
-  //   const package_id = searchParams.get("package");
-  //   setLoading(true);
-  //   try {
-  //     const payload = {
-  //       name: values.name,
-  //       company: values.company,
-  //       domain: values.domain,
-  //       email: values.email,
-  //       password: values.password,
-  //       plan: package_id,
-  //     };
-
-  //     const response = await fetch("/api/register_admin", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(payload),
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error(`Error: ${response.status}`);
-  //     }
-  //     message.success("Registration successful!");
-  //     setLoading(false);
-  //   } catch {
-  //     message.error("Registration failed.");
-  //     setLoading(false);
-  //   }
-  // };
 
   // mengatur style form border
   const formBig = {

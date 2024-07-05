@@ -250,12 +250,12 @@ const Home = () => {
                 style={{
                   position: "absolute",
                   zIndex: -1, // Ensure wave is behind other content
-                  bottom: "-8.5%",
+                  bottom: "-5%",
                   // Position at the bottom
                   objectFit: "cover",
                   display: "inline-block",
                 }}
-                src="/wave/wave1.svg"
+                src="/wave/wave1fix.svg"
                 alt=""
               />
             </Flex>
@@ -306,7 +306,7 @@ const Home = () => {
                   }}
                 >
                   <div style={{ borderRadius: "20px", overflow: "hidden" }}>
-                    <YouTubeEmbed videoId="oh0RQ_TgDnQ" />
+                    <YouTubeEmbed videoId="UsHqNpuuiC0" />
                   </div>
                 </div>
               </Flex>
@@ -382,7 +382,7 @@ const Home = () => {
                   <Flex justify="center" wrap={"wrap"}>
                     <img
                       loading="lazy"
-                      src="/image/fitur1.png"
+                      src="/image/fitur1fix.png"
                       alt="Fitur 1"
                       draggable={false}
                       width={400}

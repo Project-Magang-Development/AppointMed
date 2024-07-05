@@ -30,8 +30,10 @@ export async function GET(req: Request) {
       });
     }
 
+
     const now = dayjs().utc().add(8, "hours").toISOString();
     const todayEnd = dayjs().utc().endOf("day").toISOString();
+
 
     const queues = await prisma.queue.findMany({
       take: 5,
@@ -40,8 +42,10 @@ export async function GET(req: Request) {
         has_arrived: true,
         Reservation: {
           date_time: {
+
             gte: now,
             lte: todayEnd,
+
           },
         },
       },

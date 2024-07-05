@@ -202,6 +202,9 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    setActiveItem(pathname);
+  }, [pathname]);
 
   useEffect(() => {
     fetchDataWithLastChecked(

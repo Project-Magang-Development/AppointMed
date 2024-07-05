@@ -138,9 +138,9 @@ const Home: React.FC = () => {
                   justifyContent: "space-between",
                   cursor: "pointer",
                   backgroundColor:
-                    pkg.package_tag === "Istimewa" ? "#007E85" : "white",
+                    pkg.package_tag === "Special" ? "#007E85" : "white",
                   maxWidth: "100%",
-                  color: pkg.package_tag === "Istimewa" ? "white" : "black",
+                  color: pkg.package_tag === "Special" ? "white" : "black",
                   transition: "border 0.1s", // Transisi untuk efek hover
                 }}
                 onMouseEnter={(e) => {
@@ -155,14 +155,14 @@ const Home: React.FC = () => {
                     justify="center"
                     align="center"
                     style={{
-                      color: pkg.package_tag === "Istimewa" ? "black" : "white",
+                      color: pkg.package_tag === "Special" ? "black" : "white",
 
                       width: "100px",
                       height: "25px",
                       backgroundColor:
                         pkg.package_tag === "" || !pkg.package_tag
                           ? "transparent"
-                          : pkg.package_tag === "Istimewa"
+                          : pkg.package_tag === "Special"
                           ? "#CDFFF9"
                           : "#007E85",
                       borderRadius: "0px 15px",
@@ -189,8 +189,7 @@ const Home: React.FC = () => {
                     </p>
                     <p
                       style={{
-                        color:
-                          pkg.package_tag === "Istimewa" ? "white" : "gray",
+                        color: pkg.package_tag === "Special" ? "white" : "gray",
                       }}
                     >
                       /bulan
@@ -221,7 +220,7 @@ const Home: React.FC = () => {
                               marginRight: "5px",
 
                               color:
-                                pkg.package_tag === "Istimewa"
+                                pkg.package_tag === "Special"
                                   ? "white"
                                   : "#007E85",
                             }}
@@ -248,9 +247,9 @@ const Home: React.FC = () => {
                     size="large"
                     style={{
                       backgroundColor:
-                        pkg.package_tag === "Istimewa" ? "white" : "#202224",
+                        pkg.package_tag === "Special" ? "white" : "#202224",
                       color:
-                        pkg.package_tag === "Istimewa" ? "#007E85" : "white",
+                        pkg.package_tag === "Special" ? "#007E85" : "white",
                       border: "none",
                       borderRadius: "5px",
                     }}

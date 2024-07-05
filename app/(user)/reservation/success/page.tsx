@@ -52,13 +52,13 @@ const SuccesPage = () => {
             <Col>
               <div style={{ textAlign: "center" }}>
                 <CheckCircleFilled
-                  style={{ fontSize: "80px", color: "#6B7CFF" }}
+                  style={{ fontSize: "80px", color: "#007E85" }}
                 />
               </div>
               <Title
                 level={3}
                 style={{
-                  color: "#6B7CFF",
+                  color: "#007E85",
                   margin: 0,
                   marginTop: 30,
                   textAlign: "center",
@@ -69,7 +69,7 @@ const SuccesPage = () => {
               <Title
                 level={4}
                 style={{
-                  color: "#6B7CFF",
+                  color: "#007E85",
                   marginTop: 10,
                   textAlign: "center",
                 }}
