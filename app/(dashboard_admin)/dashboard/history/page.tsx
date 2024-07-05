@@ -29,9 +29,18 @@ export default function History() {
     return <TableSkeleton />;
   }
 
+  if (!showDetail.history || showDetail.history.length === 0) {
+    return <Alert message="Tidak Ada Data Penarikan" type="info" />;
+  }
+
   const paginatedData = showDetail.history.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
+  );
+
+  const totalAmount = showDetail.history.reduce(
+    (sum: any, detail: any) => sum + detail.amount,
+    0
   );
 
   return (
@@ -41,23 +50,28 @@ export default function History() {
         {showDetail.history.length === 0 ? (
           <Alert message="Tidak Ada Data Penarikan" type="info" />
         ) : (
-          <Row gutter={[16, 16]} justify="center">
-            {Array.isArray(paginatedData) &&
-              paginatedData.map((detail) => (
-                <Col span={24} key={detail.id}>
-                  <Card>
-                    <Title level={4}>
-                      Jumlah: Rp {detail.amount.toLocaleString()}
-                    </Title>
-                    <Text>
-                      Ditarik:{" "}
-                      {moment(detail.created_at).format("HH:mm, DD MMMM YYYY")}
-                    </Text>
-                  </Card>
-                </Col>
-              ))}
-          </Row>
+        <Row gutter={[16, 16]} justify="center">
+          {Array.isArray(paginatedData) &&
+            paginatedData.map((detail) => (
+              <Col span={24} key={detail.id}>
+                <Card>
+                  <Title level={4}>
+                    Jumlah: Rp {detail.amount.toLocaleString()}
+                  </Title>
+                  <Text>
+                    Ditarik:{" "}
+                    {moment(detail.created_at).format("HH:mm, DD MMMM YYYY")}
+                  </Text>
+                </Card>
+              </Col>
+            ))}
+        </Row>
         )}
+        <div style={{ marginTop: "20px", textAlign: "center" }}>
+          <Title level={4}>
+            Total Penarikan: Rp {totalAmount.toLocaleString()}
+          </Title>
+        </div>
         <Pagination
           current={currentPage}
           pageSize={pageSize}
