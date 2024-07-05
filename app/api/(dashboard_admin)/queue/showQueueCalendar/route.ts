@@ -14,9 +14,7 @@ export async function GET(req: Request) {
     if (!token) {
       return new NextResponse(JSON.stringify({ error: "Token not provided" }), {
         status: 401,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -32,32 +30,34 @@ export async function GET(req: Request) {
       });
     }
 
-    const url = new URL(req.url);
-    const date = url.searchParams.get("date");
-
-    const formattedDate = date
-      ? dayjs.utc(date).format("YYYY-MM-DD")
-      : dayjs().utc().format("YYYY-MM-DD");
-
-    const startOfDay = dayjs.utc(formattedDate).startOf("day").toDate();
-    const endOfDay = dayjs.utc(formattedDate).endOf("day").toDate();
+    const now = dayjs().utc().add(8, "hours").toISOString();
 
     const queues = await prisma.queue.findMany({
+      take: 5,
       where: {
         merchant_id: decoded.merchantId,
+        has_arrived: true,
         Reservation: {
           date_time: {
-            gte: startOfDay,
-            lt: endOfDay,
+            gte: now,
           },
         },
       },
       include: {
         Reservation: {
-          include: {
+          select: {
+            no_reservation: true,
+            date_time: true,
+            patient_name: true,
+            patient_phone: true,
+            patient_gender: true,
             Schedule: {
-              include: {
-                doctor: true,
+              select: {
+                doctor: {
+                  select: {
+                    name: true,
+                  },
+                },
               },
             },
           },
@@ -72,9 +72,7 @@ export async function GET(req: Request) {
 
     return new NextResponse(JSON.stringify(queues), {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("Error accessing database or verifying token:", error);

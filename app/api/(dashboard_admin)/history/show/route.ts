@@ -6,7 +6,6 @@ export async function GET(req: Request) {
   try {
     const tokenHeader = req.headers.get("Authorization");
     const token = tokenHeader?.split(" ")[1];
-
     if (!token) {
       return new NextResponse(JSON.stringify({ error: "Token not provided" }), {
         status: 401,
@@ -24,43 +23,19 @@ export async function GET(req: Request) {
     } catch (error) {
       return new NextResponse(JSON.stringify({ error: "Invalid token" }), {
         status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    const reservations = await prisma.reservation.findMany({
-      where: {
-        merchant_id: decoded.merchantId,
-      },
-      orderBy: {
-        date_time: "asc",
-      },
-      include: {
-        Schedule: {
-          include: {
-            doctor: true, 
-          },
-        },
-      },
-    });
-
-    return new NextResponse(JSON.stringify(reservations), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  } catch (error) {
-    console.error("Error accessing database or verifying token:", error);
-    return new NextResponse(
-      JSON.stringify({ error: "Internal Server Error or Invalid Token" }),
-      {
-        status: 500,
         headers: {
           "Content-Type": "application/json",
         },
-      }
-    );
+      });
+    }
+
+    const history = await prisma.expense.findMany({
+      where: {
+        merchant_id: decoded.merchantId,
+      },
+    });
+
+    return NextResponse.json({ status: 200, history });
   } finally {
     await prisma.$disconnect();
   }

@@ -49,7 +49,10 @@ export default function LoginDashboardSuperAdmin() {
       setLoading(false);
       router.push("/dashboard-admin");
     } catch (error) {
-      message.error("Login failed.");
+      setLoading(false)
+     notification.error({
+      message: "Login Gagal!"
+     })
     }
   };
 
@@ -131,18 +134,6 @@ export default function LoginDashboardSuperAdmin() {
                   type="password"
                   placeholder="Password"
                 />
-              </Form.Item>
-              <Form.Item>
-                <Link
-                  href="/forget-password"
-                  style={{
-                    display: "block",
-                    textAlign: "right",
-                    color: "#007E85F",
-                  }}
-                >
-                  Lupa Password?
-                </Link>
               </Form.Item>
               <Form.Item>
                 <Button

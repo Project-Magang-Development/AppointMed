@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest,) {
   try {
     //useSearchParams untuk mendapatkan package_id
     const { searchParams } = new URL(req.url);

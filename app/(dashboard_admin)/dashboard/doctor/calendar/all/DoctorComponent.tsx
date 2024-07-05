@@ -53,12 +53,6 @@ const DoctorSchedule: React.FC<DoctorScheduleProps> = ({ doctor }) => {
           start: item.start_date,
           end: item.end_date,
         };
-        console.log(
-          "Normalized schedule for day",
-          trimmedDay,
-          ":",
-          normalizedSchedules[trimmedDay]
-        );
       });
       setSchedules(normalizedSchedules);
     } else {

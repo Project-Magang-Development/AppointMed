@@ -73,6 +73,10 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 
   useEffect(() => {
+    setActiveItem(pathname);
+  }, [pathname]);
+
+  useEffect(() => {
     if (!login) {
       if (!Cookies.get("tokenAdmin")) {
         router.push("/dashboard-admin/login");
@@ -216,7 +220,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         >
           {collapsed ? (
             <span>
-              <img src="image/appointMed2.png" alt="" />
+              <img src="/image/appointMed2.png" alt="logo" />
             </span>
           ) : (
             <Image

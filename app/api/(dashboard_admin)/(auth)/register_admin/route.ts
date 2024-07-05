@@ -104,43 +104,6 @@ export async function POST(req: Request) {
         "User and payment created successfully. Activation email has been sent.";
     }
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-
-    await transporter.sendMail({
-      from: '"AppointMed" <no-reply@gmail.com>',
-      to: merchantPendingPayment.merchant_email,
-      subject: "Aktivasi Akun Anda",
-      text: "Halo! Terima kasih telah mendaftar. Silakan klik link berikut untuk mengaktifkan akun Anda: http://localhost:3000/dashboard/login",
-      html: `
-        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-align: center; padding: 40px; color: #333;">
-          <div style="max-width: 600px; margin: 0 auto; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;">
-            <div style="background-color: #0275d8; padding: 20px 0;">
-              <h1 style="color: #ffffff; margin: 0; padding: 0 20px;">Selamat Datang di AppointMed!</h1>
-            </div>
-            <div style="padding: 20px;">
-              <p style="font-size: 16px;">Hai, ${merchantPendingPayment.merchant_name}</p>
-              <p style="font-size: 16px;">Terima kasih telah mendaftar di AppointMed. Kami senang Anda bergabung dengan kami. Untuk menyelesaikan proses pendaftaran dan mengaktifkan akun Anda, silakan klik tombol di bawah ini:</p>
-              <a href="http://localhost:3000/dashboard/login"
-                style="display: inline-block; background-color: #0275d8; color: #ffffff; padding: 12px 24px; font-size: 18px; text-decoration: none; border-radius: 5px; margin: 20px 0;">
-                Masuk Ke Dashboard
-              </a>
-              <p style="font-size: 16px;">Jika tombol di atas tidak bekerja, salin dan tempel tautan berikut ke browser Anda:</p>
-              <p style="font-size: 16px;"><a href="http://localhost:3000/dashboard/login" style="color: #0275d8;">http://localhost:3000/dashboard/login</a></p>
-              <p style="font-size: 16px;">Jika Anda memiliki pertanyaan atau butuh bantuan lebih lanjut, jangan ragu untuk membalas email ini atau menghubungi support kami.</p>
-            </div>
-            <div style="background-color: #f0f0f0; padding: 20px; font-size: 14px; text-align: left;">
-              <p>Salam Hangat,<br/>Tim AppointMed</p>
-            </div>
-          </div>
-        </div>
-      `,
-    });
 
     return NextResponse.json({
       message: responseMessage,

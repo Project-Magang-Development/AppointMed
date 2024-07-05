@@ -91,7 +91,7 @@ export default function AdminPackageDashboard() {
       console.log(payload);
       setLoading(true);
 
-      const token = Cookies.get("token");
+      const token = Cookies.get("tokenAdmin");
 
       if (editingPackage) {
         response = await fetch(

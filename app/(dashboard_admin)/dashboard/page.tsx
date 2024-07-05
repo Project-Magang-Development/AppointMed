@@ -137,6 +137,10 @@ export default function AdminDashboard() {
     mutate,
     isLoading,
   } = useSWR("/api/queue/showQueueDashboard", fetcher);
+  const { data: showQueueCalendar, error: showQueueCalendarError } = useSWR(
+    "/api/queue/showQueueCalendar",
+    fetcher
+  );
   const {
     data: totalAmount,
     error: totalAmountError,
@@ -182,6 +186,7 @@ export default function AdminDashboard() {
   const [expenseByMonth, setExpenseByMonth] = useState<Record<number, number>>(
     {}
   );
+
   const tick = async () => {
     setCurrentTime(new Date());
     await mutate();
@@ -209,33 +214,7 @@ export default function AdminDashboard() {
 
   if (!data) return <DashboardSkeleton />;
 
-  // ? finance report logic
-  // const fetchBalance = async (month: any, year: any) => {
-  //   const token = Cookies.get("token");
-  //   const response = await fetch(
-  //     `/api/merchant_balance?month=${month}&year=${year}`,
-  //     {
-  //       method: "GET",
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     }
-  //   );
-
-  //   if (response.ok) {
-  //     const data = await response.json();
-  //     console.log("Response data:", data);
-  //     setIncomeByMonth(data.incomeByMonth);
-  //     setExpenseByMonth(data.expenseByMonth);
-  //     setBalance(data.balance || 0);
-  //   } else {
-  //     console.error("Failed to fetch balance");
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchBalance(selectedMonth, selectedYear);
-  // }, [selectedMonth, selectedYear]);
+ 
 
   const handleEventClick = (clickInfo: any) => {
     setSelectedEvent({
@@ -463,9 +442,6 @@ export default function AdminDashboard() {
       console.log("Payout successful:", response.data);
       console.log("Payout reference_id:", response.data.reference_id);
 
-      // Fetch updated balance after successful payout
-      // await fetchBalance(selectedMonth, selectedYear);
-
       setIsReportModalVisible(false);
       setConfirmLoading(false);
     } catch (error) {
@@ -480,6 +456,7 @@ export default function AdminDashboard() {
       console.log("Form Value:", formValue);
 
       setConfirmLoading(true);
+      form.resetFields();
       await performPayout(formValue);
 
       form.resetFields();
@@ -525,15 +502,15 @@ export default function AdminDashboard() {
       icon: <img src="/icons/waktu.svg" alt="" />,
     },
     {
+      title: "Antrian Hari Ini",
+      value: totalPatient,
+      icon: <img src="/icons/antrian.svg" alt="" />,
+    },
+    {
       title: "Pendapatan",
       value: `Rp. ${totalRevenue.toLocaleString()}`,
       icon: <img src="/icons/pendapatan.svg" alt="" />,
       hasButton: true,
-    },
-    {
-      title: "Antrian Hari Ini",
-      value: totalPatient,
-      icon: <img src="/icons/antrian.svg" alt="" />,
     },
   ];
 
@@ -840,8 +817,8 @@ export default function AdminDashboard() {
                   locales={allLocales}
                   locale="id"
                   events={
-                    showQueue
-                      ? showQueue.map((queue: any) => ({
+                    showQueueCalendar
+                      ? showQueueCalendar.map((queue: any) => ({
                           title: `${queue.Reservation.patient_name}`,
                           start: dayjs
                             .utc(queue.Reservation.date_time)

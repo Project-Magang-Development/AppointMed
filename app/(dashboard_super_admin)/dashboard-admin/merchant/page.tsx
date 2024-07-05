@@ -1,13 +1,25 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Divider, Input, message, Table } from "antd";
+import {
+  Button,
+  Divider,
+  Form,
+  Input,
+  message,
+  Modal,
+  notification,
+  Space,
+  Table,
+} from "antd";
+import ReactQuill from "react-quill";
 import moment from "moment";
 import "moment/locale/id";
 import Title from "antd/es/typography/Title";
 import Cookies from "js-cookie";
 import useSWR from "swr";
 import TableSkeleton from "@/app/components/tableSkeleton";
+import { useRouter } from "next/navigation";
 
 interface Package {
   package_id: string;
@@ -26,6 +38,7 @@ interface MerchantPendingPayment {
 }
 
 interface Merchant {
+  merchant_id: string;
   pending_id: string;
   status_subscriber: string;
   start_date: string;
@@ -52,9 +65,60 @@ export default function AdminMerchantDashboard() {
   } = useSWR("/api/merchant/show", fetcher);
   const [pagination, setPagination] = useState({ pageSize: 10, current: 1 });
   const [searchText, setSearchText] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [form] = Form.useForm();
+  const [emailContent, setEmailContent] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSearch = (e: any) => {
     setSearchText(e.target.value);
+  };
+
+  const handleModalEmail = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleOk = async (values: any) => {
+    setLoading(true);
+    const token = Cookies.get("tokenAdmin");
+    const payload = {
+      subject: values.subject,
+      text: emailContent,
+    };
+
+    try {
+      const response = await fetch("/api/merchant/sendEmail", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send emails");
+      }
+
+      notification.success({
+        message: "Sukses Kirim Pesan Email",
+      });
+      setIsModalVisible(false);
+      form.resetFields();
+      setEmailContent("");
+      setLoading(false);
+    } catch (error) {
+      notification.error({
+        message: "Gagal Kirim Pesan Email",
+      });
+      setLoading(false);
+      console.error("Error sending emails:", error);
+    }
   };
 
   const filteredMerchants = useMemo(() => {
@@ -91,6 +155,10 @@ export default function AdminMerchantDashboard() {
       );
     });
   }, [merchants, searchText]);
+
+  const showHistoryExpanse = (merchant_id: string) => {
+    router.push(`/dashboard-admin/merchant/${merchant_id}`);
+  };
 
   if (error) {
     message.error("Failed to fetch merchants.");
@@ -143,16 +211,6 @@ export default function AdminMerchantDashboard() {
       key: "package_name",
       render: (packageName: string) => packageName || "Tidak tersedia",
     },
-    // {
-    //   title: "Harga Paket",
-    //   dataIndex: ["MerchantPayment", "MerchantPendingPayment", "amount"],
-    //   key: "amount",
-    //   render: (amount: number) =>
-    //     amount.toLocaleString("id-ID", {
-    //       style: "currency",
-    //       currency: "IDR",
-    //     }) || "Tidak tersedia",
-    // },
     {
       title: "Nama Klinik",
       dataIndex: ["MerchantPayment", "MerchantPendingPayment", "klinik_name"],
@@ -168,13 +226,40 @@ export default function AdminMerchantDashboard() {
       dataIndex: ["MerchantPayment", "MerchantPendingPayment", "merchant_city"],
       key: "merchant_city",
     },
+    {
+      title: "Saldo Merchant",
+      dataIndex: "available_balance",
+      key: "available_balance",
+      render: (balance: number) => `Rp ${balance.toLocaleString()}`,
+    },
+    {
+      title: "Aksi",
+      dataIndex: "action",
+      key: "action",
+      render: (_: any, merchant: Merchant) => (
+        <Space>
+          <Button
+            style={{ backgroundColor: "#007E85", color: "white" }}
+            onClick={() => showHistoryExpanse(merchant.merchant_id)}
+          >
+            History Penarikan
+          </Button>
+        </Space>
+      ),
+    },
   ];
 
   return (
     <div>
       <Title level={3}>Data Merchant</Title>
       <Divider />
-      <div style={{ display: "flex", justifyContent: "end" }}>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Button
+          style={{ backgroundColor: "#007E85", color: "white" }}
+          onClick={handleModalEmail}
+        >
+          Kirim Email
+        </Button>
         <Input
           placeholder="Cari Merchant..."
           value={searchText}
@@ -195,6 +280,71 @@ export default function AdminMerchantDashboard() {
           });
         }}
       />
+      {isModalVisible && (
+        <Modal
+          title={<div style={{ marginBottom: "16px" }}>Kirim Email</div>}
+          visible={isModalVisible}
+          footer={null}
+          onCancel={handleCancel}
+        >
+          <Form
+            form={form}
+            name="addPacketForm"
+            initialValues={{ remember: true }}
+            onFinish={handleOk}
+            autoComplete="off"
+          >
+            <Form.Item
+              name="subject"
+              rules={[{ required: true, message: "Tolong Masukan Subject" }]}
+            >
+              <Input placeholder="Subject" />
+            </Form.Item>
+            <Form.Item
+              name="text"
+              rules={[{ required: true, message: "Tolong Masukan Text" }]}
+            >
+              <ReactQuill
+                theme="snow"
+                value={emailContent}
+                onChange={setEmailContent}
+                modules={{
+                  toolbar: [
+                    [{ font: [] }],
+                    [{ header: [1, 2, 3, 4, 5, 6, false] }],
+                    ["bold", "italic", "underline", "strike"],
+                    [{ color: [] }, { background: [] }],
+                    [{ script: "sub" }, { script: "super" }],
+                    [
+                      { header: "1" },
+                      { header: "2" },
+                      "blockquote",
+                      "code-block",
+                    ],
+                    [
+                      { list: "ordered" },
+                      { list: "bullet" },
+                      { indent: "-1" },
+                      { indent: "+1" },
+                    ],
+                    ["direction", { align: [] }],
+                    ["link", "image"],
+                    ["clean"],
+                  ],
+                }}
+              />
+            </Form.Item>
+            <Form.Item>
+              <Space>
+                <Button onClick={handleCancel}>Cancel</Button>
+                <Button type="primary" htmlType="submit" loading={loading}>
+                  Kirim
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Modal>
+      )}
     </div>
   );
 }

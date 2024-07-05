@@ -1,4 +1,5 @@
 "use client";
+import TableSkeleton from "@/app/components/tableSkeleton";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Button, Divider, Flex } from "antd";
 import axios from "axios";
@@ -153,7 +154,7 @@ function GetInvoiceComponent() {
   };
 
   if (loading) {
-    return <p>Sedang Menyiapkan invoice...</p>;
+    return <TableSkeleton/>;
   }
 
   return (
@@ -355,7 +356,7 @@ function GetInvoiceComponent() {
                     {new Intl.NumberFormat("id-ID", {
                       style: "currency",
                       currency: "IDR",
-                    }).format(5000)}
+                    }).format(1500)}
                   </span>
                 </Flex>
                 <Flex vertical align="end">

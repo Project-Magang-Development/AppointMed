@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import axios from "axios";
 import moment from "moment";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
@@ -114,7 +113,7 @@ const createMerchant = async (invoiceData: any) => {
               <h1 style="color: #ffffff; margin: 0; padding: 0 20px;">Selamat Datang di RentalinAja!</h1>
             </div>
             <div style="padding: 20px;">
-              <p style="font-size: 16px;">Hai,</p>
+              <p style="font-size: 16px;">Hai ${merchant_email}},</p>
               <p style="font-size: 16px;">Terima kasih telah mendaftar di RentalinAja. Kami senang Anda bergabung dengan kami. Untuk menyelesaikan proses pendaftaran dan mengaktifkan akun Anda, silakan klik tombol di bawah ini:</p>
               <a href="http://localhost:3000/dashboard/login"
                 style="display: inline-block; background-color: #0275d8; color: #ffffff; padding: 12px 24px; font-size: 18px; text-decoration: none; border-radius: 5px; margin: 20px 0;">

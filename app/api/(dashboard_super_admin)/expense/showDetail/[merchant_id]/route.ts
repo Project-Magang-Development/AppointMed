@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import jwt from "jsonwebtoken";
 
-export async function GET(req: Request) {
+export async function GET(
+  req: Request,
+  { params }: { params: { merchant_id: string } }
+) {
   try {
+    const merchant_id = params.merchant_id;
     const tokenHeader = req.headers.get("Authorization");
     const token = tokenHeader?.split(" ")[1];
 
@@ -16,40 +19,15 @@ export async function GET(req: Request) {
       });
     }
 
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
-        merchantId: string;
-      };
-    } catch (error) {
-      return new NextResponse(JSON.stringify({ error: "Invalid token" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    const reservations = await prisma.reservation.findMany({
+    const showDetail = await prisma.expense.findMany({
       where: {
-        merchant_id: decoded.merchantId,
-      },
-      orderBy: {
-        date_time: "asc",
+        merchant_id: merchant_id,
       },
       include: {
-        Schedule: {
-          include: {
-            doctor: true, 
-          },
-        },
+        merchant: true,
       },
     });
-
-    return new NextResponse(JSON.stringify(reservations), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    return NextResponse.json(showDetail);
   } catch (error) {
     console.error("Error accessing database or verifying token:", error);
     return new NextResponse(

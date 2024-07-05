@@ -12,7 +12,7 @@ export async function GET(req: Request) {
     const token = tokenHeader?.split(" ")[1];
 
     if (!token) {
-      return new Response(JSON.stringify({ error: "Token not provided" }), {
+      return new NextResponse(JSON.stringify({ error: "Token not provided" }), {
         status: 401,
         headers: { "Content-Type": "application/json" },
       });
@@ -24,13 +24,14 @@ export async function GET(req: Request) {
         merchantId: string;
       };
     } catch (error) {
-      return new Response(JSON.stringify({ error: "Invalid token" }), {
+      return new NextResponse(JSON.stringify({ error: "Invalid token" }), {
         status: 401,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    const now = dayjs().utc().startOf('day').toISOString();
+    const todayStart = dayjs().utc().startOf("day").toISOString();
+    const todayEnd = dayjs().utc().endOf("day").toISOString();
 
 
     const countPatient = await prisma.queue.count({
@@ -39,7 +40,8 @@ export async function GET(req: Request) {
         has_arrived: true,
         Reservation: {
           date_time: {
-            gte: now,
+            gte: todayStart,
+            lte: todayEnd,
           },
         },
       },
@@ -51,7 +53,7 @@ export async function GET(req: Request) {
     });
   } catch (error) {
     console.error("Error accessing database or verifying token:", error);
-    return new Response(
+    return new NextResponse(
       JSON.stringify({ error: "Internal Server Error or Invalid Token" }),
       {
         status: 500,

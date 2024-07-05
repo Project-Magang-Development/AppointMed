@@ -287,14 +287,6 @@ const RegisterDashboard: React.FC = () => {
         throw new Error("Failed to create payment invoice");
       }
 
-      // if (packageData.package_price === 0) {
-      //   const merchantResult = await createMerchant(
-      //     paymentResult.newPayment.pending_id
-      //   );
-
-      //   console.log("Akun Merchant Dibuat");
-      // }
-
       notification.success({
         message: "Registrasi Berhasil!",
       });
@@ -308,7 +300,6 @@ const RegisterDashboard: React.FC = () => {
         } else {
           console.log("Tidak ada invoice yang perlu dibuat");
         }
-        // router.push("/home");
       }
       setLoading(false);
       router.push("/home/register/success");
@@ -319,37 +310,6 @@ const RegisterDashboard: React.FC = () => {
     }
   };
 
-  // const onFinish = async (values: any) => {
-  //   const package_id = searchParams.get("package");
-  //   setLoading(true);
-  //   try {
-  //     const payload = {
-  //       name: values.name,
-  //       company: values.company,
-  //       domain: values.domain,
-  //       email: values.email,
-  //       password: values.password,
-  //       plan: package_id,
-  //     };
-
-  //     const response = await fetch("/api/register_admin", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(payload),
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error(`Error: ${response.status}`);
-  //     }
-  //     message.success("Registration successful!");
-  //     setLoading(false);
-  //   } catch {
-  //     message.error("Registration failed.");
-  //     setLoading(false);
-  //   }
-  // };
 
   // mengatur style form border
   const formBig = {

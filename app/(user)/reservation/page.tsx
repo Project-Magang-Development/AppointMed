@@ -15,6 +15,8 @@ import {
   Divider,
   Spin,
   Flex,
+  Select,
+  notification,
 } from "antd";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -170,9 +172,14 @@ export default function FormPage() {
       if (response.ok) {
         setLoading(false);
         setReservationData(data.data);
-        setShowInvoice(true); // Show invoice page
+        setShowInvoice(true); 
+        notification.success({
+          message: "Reservation Success!"
+        })
       } else {
-        message.error(data.error || "Failed to create reservation");
+       notification.error({
+         message: "Reservation Failed!",
+       });
         console.error("Error:", data);
       }
     } catch (error) {
@@ -187,19 +194,22 @@ export default function FormPage() {
   };
 
   const handleOk = async () => {
+    setLoading(true);
     try {
       const externalId =
         reservationData.external_id ||
         "INV-" + Math.random().toString(36).substring(2, 9);
       const result = await createInvoice(reservationData, externalId);
-      console.log(result);
 
       if (result && result.invoice_url) {
         window.location.href = result.invoice_url;
       }
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.error(error);
     } finally {
+      setLoading(false);
       setIsModalVisible(false);
     }
   };
@@ -349,96 +359,6 @@ export default function FormPage() {
                 </tr>
               </tbody>
             </table>
-
-            {/* <Flex
-              justify="space-between"
-              style={{
-                marginBottom: "20px",
-              }}
-            >
-              <div>
-                <p>
-                  <strong>Invoice For:</strong>
-                </p>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    width: "300px",
-                  }}
-                ></div>
-                <Flex
-                  gap={40}
-                  style={{
-                    display: "flex",
-
-                    width: "300px",
-                  }}
-                >
-                  <p>Name</p>
-                  <p>{reservationData.patient_name}</p>
-                </Flex>
-                <Flex
-                  gap={40}
-                  style={{
-                    display: "flex",
-
-                    width: "300px",
-                  }}
-                >
-                  <Flex>
-                    <p>Gender</p>
-                  </Flex>
-                  <Flex justify="start">
-                    <p>{reservationData.patient_gender}</p>
-                  </Flex>
-                </Flex>
-                <Flex
-                  gap={40}
-                  style={{
-                    display: "flex",
-
-                    width: "300px",
-                  }}
-                >
-                  <Flex>
-                    <p>Phone</p>
-                  </Flex>
-                  <Flex>
-                    <p style={{ textAlign: "left" }}>
-                      {reservationData.patient_phone}
-                    </p>
-                  </Flex>
-                </Flex>
-                <Flex
-                  gap={40}
-                  style={{
-                    display: "flex",
-
-                    width: "300px",
-                  }}
-                >
-                  <p>Email</p>
-                  <p>{reservationData.patient_email}</p>
-                </Flex>
-                <Flex
-                  gap={40}
-                  style={{
-                    display: "flex",
-
-                    width: "300px",
-                  }}
-                >
-                  <p>Address</p>
-                  <p>{reservationData.patient_address}</p>
-                </Flex>
-              </div>
-              <div>
-                <p>
-                  <strong>Reservation {reservationData.no_reservation}</strong>
-                </p>
-              </div>
-            </Flex> */}
             <Table
               dataSource={invoiceData}
               columns={columnsInvoice}
@@ -504,6 +424,7 @@ export default function FormPage() {
             <Button
               onClick={handleOk}
               type="primary"
+              loading={loading}
               block
               style={{
                 marginTop: "25px",
@@ -548,10 +469,16 @@ export default function FormPage() {
                   label="Gender"
                   name="patient_gender"
                   rules={[
-                    { required: true, message: "Please select your gender!" },
+                    {
+                      required: true,
+                      message: "Please input your gender!",
+                    },
                   ]}
                 >
-                  <Input placeholder="Select gender" />
+                  <Select placeholder="Gender">
+                    <Select.Option value="Male">Male</Select.Option>
+                    <Select.Option value="Female">Female</Select.Option>
+                  </Select>
                 </Form.Item>
                 <Form.Item
                   label="Phone Number"

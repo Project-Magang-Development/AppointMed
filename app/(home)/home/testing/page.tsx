@@ -4,6 +4,8 @@ import Scheduler from "schedules-appointmed";
 
 export default function Testing() {
   return (
-    <Scheduler apiKey="56732a8c26bcc5816716e5eec86deea42d6c247774c749bdedd342eb68d533fd" />
+
+    <Scheduler apiKey="9d843c7b64f9db8f62a7e37f5403cd82fb5be7d5ef8270239416f76670eaa7e5" />
+
   );
 }
