@@ -30,7 +30,10 @@ export async function GET(req: Request) {
     }
 
     const specialist = await prisma.doctor.findMany({
-      where: { merchant_id: merchant?.merchant_id },
+      where: {
+        merchant_id: merchant?.merchant_id,
+        Merchant: { status_subscriber: "Aktif" },
+      },
       select: {
         doctor_id: true,
         specialist: true,

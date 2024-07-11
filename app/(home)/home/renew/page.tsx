@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { Card, Col, Row, Spin, Alert, Button, message, Flex } from "antd";
@@ -60,7 +60,7 @@ const RenewPage: React.FC = () => {
   useEffect(() => {
     if (packages) {
       const filteredPackages = packages.filter(
-        (pkg) => pkg.package_tag.toLowerCase() !== "free"
+        (pkg) => pkg.package_price !== 0
       );
       const featureList = filteredPackages.map((pkg) =>
         pkg.package_feature ? pkg.package_feature.split(",") : []

@@ -398,8 +398,7 @@ export default function AdminPackageDashboard() {
             name="count_order"
             rules={[
               {
-                required: true,
-                message: "Tolong Masukan Penyimpanan Data Dokter Yang Masuk!",
+                required: false,
               },
             ]}
           >
@@ -409,8 +408,7 @@ export default function AdminPackageDashboard() {
             name="duration"
             rules={[
               {
-                required: true,
-                message: "Tolong Masukan Durasi Paket!",
+                required: false,
               },
             ]}
           >

@@ -100,8 +100,8 @@ const RegisterRenew = () => {
         customer_notification_preference: {
           invoice_paid: ["email", "whatsapp"],
         },
-        success_redirect_url: `http://localhost:3000/home/register/success`,
-        failure_redirect_url: `http://localhost:3000/home/register?package=${packageDataId}`,
+        success_redirect_url: `http://localhost:3001/home/register/success`,
+        failure_redirect_url: `http://localhost:3001/home/register?package=${packageDataId}`,
         items: [
           {
             name: packageData.package_name,

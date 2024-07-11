@@ -82,7 +82,7 @@ function GetInvoiceComponent() {
     // increases the image quality but also the size of the PDF, so be careful
     // using values higher than 10 when having multiple pages generated, it
     // might cause the page to crash or hang.
-    resolution: Resolution.HIGH,
+    resolution: Resolution.MEDIUM,
     page: {
       // margin is in MM, default is Margin.NONE = 0
       margin: Margin.NONE,
@@ -93,7 +93,7 @@ function GetInvoiceComponent() {
     },
     canvas: {
       // default is 'image/jpeg' for better size performance
-      mimeType: "image/png",
+      mimeType: "image/jpeg",
       qualityRatio: 1,
     },
     // Customize any value passed to the jsPDF instance and html2canvas
@@ -154,7 +154,7 @@ function GetInvoiceComponent() {
   };
 
   if (loading) {
-    return <TableSkeleton/>;
+    return <TableSkeleton />;
   }
 
   return (

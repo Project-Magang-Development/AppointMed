@@ -104,7 +104,6 @@ export async function POST(req: Request) {
         "User and payment created successfully. Activation email has been sent.";
     }
 
-
     return NextResponse.json({
       message: responseMessage,
       user: merchantData,

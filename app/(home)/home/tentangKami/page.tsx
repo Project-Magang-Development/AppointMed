@@ -5,6 +5,7 @@ import Section from "@/app/components/revealAnimation";
 import { Button, Col, Flex, Row } from "antd";
 import { Footer } from "antd/es/layout/layout";
 import { useInView } from "framer-motion";
+import Link from "next/link";
 import React, { CSSProperties, useRef } from "react";
 
 const TentangKami = () => {
@@ -78,15 +79,17 @@ const TentangKami = () => {
                   Mulai gunakan AppointMed hari ini dan rasakan manfaatnya!
                 </p>
                 <Flex wrap="wrap" gap={20} className="button-tentangKami">
-                  <Button
-                    style={{
-                      backgroundColor: "#007E85",
-                      color: "white",
-                      border: "none",
-                    }}
-                  >
-                    Gabung Sekarang
-                  </Button>
+                  <Link href="/home/pricing">
+                    <Button
+                      style={{
+                        backgroundColor: "#007E85",
+                        color: "white",
+                        border: "none",
+                      }}
+                    >
+                      Gabung Sekarang
+                    </Button>
+                  </Link>
                   <p
                     style={{
                       fontSize: "15px",
@@ -96,12 +99,14 @@ const TentangKami = () => {
                   >
                     atau
                   </p>
-                  <Button
-                    className="button-tentangKami"
-                    style={{ border: "1px solid #007E85", color: "#007E85" }}
-                  >
-                    Hubungi Kami
-                  </Button>
+                  <Link href={"/home/Kontak"}>
+                    <Button
+                      className="button-tentangKami"
+                      style={{ border: "1px solid #007E85", color: "#007E85" }}
+                    >
+                      Hubungi Kami
+                    </Button>
+                  </Link>
                 </Flex>
               </Flex>
             </Flex>

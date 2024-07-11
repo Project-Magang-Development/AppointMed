@@ -103,7 +103,7 @@ export default function FormPage() {
           invoice_reminder: ["whatsapp"],
           invoice_paid: ["whatsapp"],
         },
-        success_redirect_url: "http://localhost:3000/reservation/success",
+        success_redirect_url: "http://localhost:3001/reservation/success",
         items: [
           {
             name: detailSchedule.detailSchedule.doctor.name,
@@ -172,14 +172,14 @@ export default function FormPage() {
       if (response.ok) {
         setLoading(false);
         setReservationData(data.data);
-        setShowInvoice(true); 
+        setShowInvoice(true);
         notification.success({
-          message: "Reservation Success!"
-        })
+          message: "Reservation Success!",
+        });
       } else {
-       notification.error({
-         message: "Reservation Failed!",
-       });
+        notification.error({
+          message: "Reservation Failed!",
+        });
         console.error("Error:", data);
       }
     } catch (error) {

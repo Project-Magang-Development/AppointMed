@@ -55,7 +55,6 @@ const createMerchant = async (invoiceData: any) => {
         data: {
           start_date: startDate,
           end_date: endDate,
-          api_key: generateApiKey(),
           package_id: plan,
           pending_id: pending_id,
           merchant_payment_id: newMerchantPayment.merchant_payment_id,
@@ -105,7 +104,7 @@ const createMerchant = async (invoiceData: any) => {
       from: '"RentalinAja" <no-reply@gmail.com>',
       to: merchant_email,
       subject: "Aktivasi Akun Anda",
-      text: "Halo! Terima kasih telah mendaftar. Silakan klik link berikut untuk mengaktifkan akun Anda: http://localhost:3000/dashboard/login",
+      text: "Halo! Terima kasih telah mendaftar. Silakan klik link berikut untuk mengaktifkan akun Anda: http://localhost:3001/dashboard/login",
       html: `
         <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-align: center; padding: 40px; color: #333;">
           <div style="max-width: 600px; margin: 0 auto; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;">
@@ -115,12 +114,12 @@ const createMerchant = async (invoiceData: any) => {
             <div style="padding: 20px;">
               <p style="font-size: 16px;">Hai ${merchant_email}},</p>
               <p style="font-size: 16px;">Terima kasih telah mendaftar di RentalinAja. Kami senang Anda bergabung dengan kami. Untuk menyelesaikan proses pendaftaran dan mengaktifkan akun Anda, silakan klik tombol di bawah ini:</p>
-              <a href="http://localhost:3000/dashboard/login"
+              <a href="http://localhost:3001/dashboard/login"
                 style="display: inline-block; background-color: #0275d8; color: #ffffff; padding: 12px 24px; font-size: 18px; text-decoration: none; border-radius: 5px; margin: 20px 0;">
                 Aktifkan Akun Anda
               </a>
               <p style="font-size: 16px;">Jika tombol di atas tidak bekerja, salin dan tempel tautan berikut ke browser Anda:</p>
-              <p style="font-size: 16px;"><a href="http://localhost:3000/dashboard/login" style="color: #0275d8;">http://localhost:3000/dashboard/login</a></p>
+              <p style="font-size: 16px;"><a href="http://localhost:3001/dashboard/login" style="color: #0275d8;">http://localhost:3001/dashboard/login</a></p>
               <p style="font-size: 16px;">Jika Anda memiliki pertanyaan atau butuh bantuan lebih lanjut, jangan ragu untuk membalas email ini atau menghubungi support kami.</p>
             </div>
             <div style="background-color: #f0f0f0; padding: 20px; font-size: 14px; text-align: left;">

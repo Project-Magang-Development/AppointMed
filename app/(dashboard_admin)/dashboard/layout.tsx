@@ -149,7 +149,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
         if (data.message === "Langganan sudah berakhir.") {
           Cookies.remove("token");
-          router.push("dashboard/login");
+          router.push("/dashboard/login");
         }
 
         if (data.message.length > 0) {

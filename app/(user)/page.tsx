@@ -59,9 +59,7 @@ const Schedules: React.FC<ScheduleProps> = (apiKey) => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [times, setTimes] = useState<TimeSlot[]>([]);
   const [selectedScheduleId, setSelectedScheduleId] = useState<string>("");
-
   const apiBaseUrl = "http://localhost:3001";
-
 
   const fetcher = (url: string) =>
     fetch(url, {

@@ -306,7 +306,7 @@ const Home = () => {
                   }}
                 >
                   <div style={{ borderRadius: "20px", overflow: "hidden" }}>
-                    <YouTubeEmbed videoId="UsHqNpuuiC0" />
+                    <YouTubeEmbed videoId="cxujYsmBBLc" />
                   </div>
                 </div>
               </Flex>

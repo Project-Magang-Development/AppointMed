@@ -123,8 +123,8 @@ const RegisterDashboard: React.FC = () => {
           invoice_paid: ["email", "whatsapp"],
         },
         // redirect ke tempat register yang sama tapi sesuai package yang dipilih
-        success_redirect_url: `http://localhost:3000/home/register/success`,
-        failure_redirect_url: `http://localhost:3000/home/register?package=${packageId}`,
+        success_redirect_url: `http://localhost:3001/home/register/success`,
+        failure_redirect_url: `http://localhost:3001/home/register?package=${packageId}`,
         items: [
           {
             name: packageData.package_name,
@@ -309,7 +309,6 @@ const RegisterDashboard: React.FC = () => {
       setLoading(false);
     }
   };
-
 
   // mengatur style form border
   const formBig = {
